@@ -21,11 +21,11 @@ export default function AdminLayout({
   return (
     <div className="flex min-h-screen bg-gray-100">
       {/* Sidebar */}
-      <aside className="w-56 bg-gray-900 text-white flex flex-col">
-        <div className="px-6 py-5 border-b border-gray-700">
-          <h1 className="text-lg font-bold tracking-wide">LED Manager</h1>
+      <aside className="w-64 bg-gray-900 text-white flex flex-col shrink-0">
+        <div className="px-6 py-6 border-b border-gray-700">
+          <h1 className="text-xl font-bold tracking-wide">LED Manager</h1>
         </div>
-        <nav className="flex-1 py-4">
+        <nav className="flex-1 py-3">
           {navItems.map((item) => {
             const active = item.exact
               ? pathname === item.href
@@ -34,10 +34,10 @@ export default function AdminLayout({
               <Link
                 key={item.href}
                 href={item.href}
-                className={`block px-6 py-3 text-sm transition-colors ${
+                className={`flex items-center px-6 py-4 text-base font-medium transition-colors ${
                   active
                     ? "bg-blue-600 text-white"
-                    : "text-gray-300 hover:bg-gray-800"
+                    : "text-gray-300 hover:bg-gray-800 hover:text-white"
                 }`}
               >
                 {item.label}
@@ -49,7 +49,7 @@ export default function AdminLayout({
 
       {/* Main content */}
       <main className="flex-1 overflow-auto">
-        <div className="p-8">{children}</div>
+        <div className="p-10">{children}</div>
       </main>
     </div>
   );

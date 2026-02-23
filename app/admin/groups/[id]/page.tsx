@@ -65,12 +65,12 @@ function SortableItem({
     <div
       ref={setNodeRef}
       style={style}
-      className="flex items-center gap-3 bg-white border border-gray-200 rounded-lg p-3 mb-2 shadow-sm"
+      className="flex items-center gap-4 bg-white border border-gray-200 rounded-xl p-4 mb-3 shadow-sm"
     >
       <button
         {...attributes}
         {...listeners}
-        className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 px-1"
+        className="cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 text-2xl px-1 select-none"
         title="ドラッグして並び替え"
       >
         ⠿
@@ -81,42 +81,42 @@ function SortableItem({
         <img
           src={gf.file.path}
           alt={gf.file.name}
-          className="w-16 h-10 object-cover rounded"
+          className="w-20 h-12 object-cover rounded-lg"
         />
       ) : (
-        <div className="w-16 h-10 bg-gray-100 rounded flex items-center justify-center text-xs text-gray-400">
+        <div className="w-20 h-12 bg-gray-100 rounded-lg flex items-center justify-center text-sm text-gray-500 font-medium">
           動画
         </div>
       )}
 
-      <span className="flex-1 text-sm text-gray-800 truncate">
+      <span className="flex-1 text-base text-gray-800 font-medium truncate">
         {gf.file.name}
       </span>
 
       {isImage && (
-        <label className="flex items-center gap-1 text-xs text-gray-500">
-          表示秒数:
+        <label className="flex items-center gap-2 text-sm text-gray-600 shrink-0">
+          <span className="font-medium">表示秒数</span>
           <input
             type="number"
             min={1}
             max={3600}
             value={gf.duration ?? ""}
-            placeholder="auto"
+            placeholder="5"
             onChange={(e) =>
               onDurationChange(
                 gf.id,
                 e.target.value ? parseInt(e.target.value) : null
               )
             }
-            className="w-16 px-2 py-1 border border-gray-300 rounded text-xs focus:outline-none focus:ring-1 focus:ring-blue-400"
+            className="w-20 px-3 py-2 border border-gray-300 rounded-lg text-base focus:outline-none focus:ring-2 focus:ring-blue-400"
           />
-          秒
+          <span>秒</span>
         </label>
       )}
 
       <button
         onClick={() => onRemove(gf.id)}
-        className="text-red-500 hover:text-red-700 text-xs px-2 py-1 rounded hover:bg-red-50"
+        className="px-4 py-2 bg-red-100 text-red-700 text-sm font-medium rounded-lg hover:bg-red-200 transition-colors border border-red-200 shrink-0"
       >
         削除
       </button>
@@ -191,7 +191,6 @@ export default function GroupEditorPage() {
   const handleSave = async () => {
     setSaving(true);
 
-    // Save group name if changed
     if (groupName !== group?.name) {
       await fetch(`/api/groups/${id}`, {
         method: "PUT",
@@ -200,7 +199,6 @@ export default function GroupEditorPage() {
       });
     }
 
-    // Save file order
     await fetch(`/api/groups/${id}/files`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
@@ -213,38 +211,36 @@ export default function GroupEditorPage() {
     router.push("/admin/groups");
   };
 
-  if (!group) return <p className="text-gray-500">読み込み中...</p>;
-
-  const filesNotInGroup = allFiles;
+  if (!group) return <p className="text-gray-500 text-base">読み込み中...</p>;
 
   return (
     <div className="max-w-2xl">
-      <div className="flex items-center gap-4 mb-6">
+      <div className="flex items-center gap-4 mb-8">
         <button
           onClick={() => router.push("/admin/groups")}
-          className="text-gray-500 hover:text-gray-700 text-sm"
+          className="px-4 py-2 bg-gray-100 text-gray-700 text-base font-medium rounded-lg hover:bg-gray-200 transition-colors border border-gray-300"
         >
           ← 戻る
         </button>
-        <h2 className="text-2xl font-bold text-gray-800">グループ編集</h2>
+        <h2 className="text-3xl font-bold text-gray-800">グループ編集</h2>
       </div>
 
-      <div className="mb-6">
-        <label className="block text-sm font-medium text-gray-700 mb-1">
+      <div className="mb-7">
+        <label className="block text-sm font-semibold text-gray-600 mb-2">
           グループ名
         </label>
         <input
           type="text"
           value={groupName}
           onChange={(e) => setGroupName(e.target.value)}
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+          className="w-full px-4 py-3 text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
         />
       </div>
 
-      <div className="mb-6">
-        <h3 className="text-sm font-medium text-gray-700 mb-2">
+      <div className="mb-7">
+        <label className="block text-sm font-semibold text-gray-600 mb-2">
           ファイルを追加
-        </h3>
+        </label>
         <select
           onChange={(e) => {
             if (e.target.value) {
@@ -252,10 +248,10 @@ export default function GroupEditorPage() {
               e.target.value = "";
             }
           }}
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+          className="w-full px-4 py-3 text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
         >
           <option value="">ファイルを選択...</option>
-          {filesNotInGroup.map((f) => (
+          {allFiles.map((f) => (
             <option key={f.id} value={f.id}>
               {f.name}
             </option>
@@ -263,13 +259,13 @@ export default function GroupEditorPage() {
         </select>
       </div>
 
-      <div className="mb-6">
-        <h3 className="text-sm font-medium text-gray-700 mb-2">
+      <div className="mb-7">
+        <h3 className="text-sm font-semibold text-gray-600 mb-3">
           再生順（ドラッグで並び替え）
         </h3>
 
         {items.length === 0 ? (
-          <div className="text-center text-gray-400 text-sm py-8 border border-dashed border-gray-300 rounded-lg">
+          <div className="text-center text-gray-400 text-base py-10 border-2 border-dashed border-gray-300 rounded-xl">
             ファイルが追加されていません
           </div>
         ) : (
@@ -299,13 +295,13 @@ export default function GroupEditorPage() {
         <button
           onClick={handleSave}
           disabled={saving}
-          className="px-6 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 disabled:opacity-50"
+          className="px-7 py-3 bg-blue-600 text-white text-base font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
         >
           {saving ? "保存中..." : "保存"}
         </button>
         <button
           onClick={() => router.push("/admin/groups")}
-          className="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm hover:bg-gray-300"
+          className="px-7 py-3 bg-gray-200 text-gray-700 text-base font-medium rounded-lg hover:bg-gray-300 transition-colors"
         >
           キャンセル
         </button>

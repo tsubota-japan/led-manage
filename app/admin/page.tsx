@@ -24,52 +24,60 @@ export default function AdminDashboard() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold text-gray-800">ダッシュボード</h2>
+      <div className="flex items-center justify-between mb-8">
+        <h2 className="text-3xl font-bold text-gray-800">ダッシュボード</h2>
         <Link
           href="/admin/displays"
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700"
+          className="px-5 py-3 bg-blue-600 text-white text-base font-medium rounded-lg hover:bg-blue-700 transition-colors"
         >
           ディスプレイ管理
         </Link>
       </div>
 
       {loading ? (
-        <p className="text-gray-500">読み込み中...</p>
+        <p className="text-gray-500 text-base">読み込み中...</p>
       ) : displays.length === 0 ? (
-        <div className="bg-white rounded-lg p-8 text-center text-gray-500 border border-dashed border-gray-300">
-          <p className="mb-3">ディスプレイが登録されていません</p>
+        <div className="bg-white rounded-xl p-12 text-center border-2 border-dashed border-gray-300">
+          <p className="text-gray-500 text-lg mb-4">ディスプレイが登録されていません</p>
           <Link
             href="/admin/displays"
-            className="text-blue-600 hover:underline text-sm"
+            className="inline-block px-5 py-3 bg-blue-600 text-white text-base font-medium rounded-lg hover:bg-blue-700 transition-colors"
           >
             ディスプレイを追加する →
           </Link>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {displays.map((d) => (
             <div
               key={d.id}
-              className="bg-white rounded-lg shadow-sm border border-gray-200 p-5"
+              className="bg-white rounded-xl shadow-sm border border-gray-200 p-6"
             >
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="font-semibold text-gray-800">{d.name}</h3>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-gray-800">{d.name}</h3>
                 <span
-                  className={`w-2.5 h-2.5 rounded-full ${
-                    d.online ? "bg-green-500" : "bg-gray-300"
+                  className={`flex items-center gap-1.5 text-sm font-medium px-3 py-1 rounded-full ${
+                    d.online
+                      ? "bg-green-100 text-green-700"
+                      : "bg-gray-100 text-gray-500"
                   }`}
-                  title={d.online ? "オンライン" : "オフライン"}
-                />
+                >
+                  <span
+                    className={`w-2 h-2 rounded-full ${
+                      d.online ? "bg-green-500" : "bg-gray-400"
+                    }`}
+                  />
+                  {d.online ? "オンライン" : "オフライン"}
+                </span>
               </div>
-              <p className="text-xs text-gray-400 font-mono mb-3">
+              <p className="text-sm text-gray-400 font-mono mb-4">
                 コード: {d.code}
               </p>
               <a
                 href={`/display/${d.code}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-xs text-blue-600 hover:underline"
+                className="inline-block px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition-colors"
               >
                 表示画面を開く →
               </a>

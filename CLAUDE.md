@@ -198,6 +198,36 @@ npx prisma generate        # クライアント再生成
 
 ---
 
+## UIデザイン方針
+
+### ボタンスタイル
+テキストカラーだけのボタンは使わない。必ず背景色を付けて視認性を確保する。
+
+| 用途 | クラス |
+|---|---|
+| 主アクション（作成・保存・追加） | `px-6 py-3 bg-blue-600 text-white text-base font-medium rounded-lg hover:bg-blue-700` |
+| 編集 | `px-4 py-2 bg-blue-100 text-blue-700 text-sm font-medium rounded-lg border border-blue-200 hover:bg-blue-200` |
+| 削除 | `px-4 py-2 bg-red-100 text-red-700 text-sm font-medium rounded-lg border border-red-200 hover:bg-red-200` |
+| 無効化/戻る/キャンセル | `px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg border border-gray-300 hover:bg-gray-200` |
+
+### テキストサイズ
+- ページタイトル: `text-3xl font-bold`
+- セクション見出し: `text-lg font-semibold`
+- テーブル本文: `text-base`
+- テーブルヘッダー: `text-sm font-semibold uppercase tracking-wide`
+- フォームラベル: `text-sm font-semibold`
+- 入力欄: `px-4 py-3 text-base`
+
+### サイドバー
+- 幅: `w-64`
+- ナビアイテム: `py-4 text-base font-medium`
+
+### テーブル
+- 行の余白: `px-5 py-4`（コンパクトな `px-4 py-2` は使わない）
+- カード外枠: `rounded-xl`（`rounded-lg` より大きく）
+
+---
+
 ## 動作確認手順
 
 1. `npm run dev` でサーバー起動

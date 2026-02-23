@@ -60,10 +60,14 @@ export default function FilesPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold text-gray-800">ファイル管理</h2>
-        <label className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm cursor-pointer hover:bg-blue-700">
-          ファイルを追加
+      <div className="flex items-center justify-between mb-8">
+        <h2 className="text-3xl font-bold text-gray-800">ファイル管理</h2>
+        <label className={`px-5 py-3 text-base font-medium rounded-lg cursor-pointer transition-colors ${
+          uploading
+            ? "bg-gray-400 text-white cursor-not-allowed"
+            : "bg-blue-600 text-white hover:bg-blue-700"
+        }`}>
+          ＋ ファイルを追加
           <input
             ref={inputRef}
             type="file"
@@ -77,70 +81,74 @@ export default function FilesPage() {
       </div>
 
       {uploading && (
-        <div className="mb-4 p-3 bg-blue-50 text-blue-700 rounded-lg text-sm">
+        <div className="mb-6 p-4 bg-blue-50 text-blue-700 rounded-xl text-base border border-blue-200">
           {progress}
         </div>
       )}
 
       {files.length === 0 ? (
-        <div className="bg-white rounded-lg p-8 text-center text-gray-500 border border-dashed border-gray-300">
-          ファイルがありません。上のボタンからアップロードしてください。
+        <div className="bg-white rounded-xl p-12 text-center border-2 border-dashed border-gray-300">
+          <p className="text-gray-500 text-lg">
+            ファイルがありません。上のボタンからアップロードしてください。
+          </p>
         </div>
       ) : (
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-          <table className="w-full text-sm">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+          <table className="w-full">
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
-                <th className="px-4 py-3 text-left text-gray-600 font-medium">
+                <th className="px-5 py-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wide">
                   プレビュー
                 </th>
-                <th className="px-4 py-3 text-left text-gray-600 font-medium">
+                <th className="px-5 py-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wide">
                   ファイル名
                 </th>
-                <th className="px-4 py-3 text-left text-gray-600 font-medium">
+                <th className="px-5 py-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wide">
                   種類
                 </th>
-                <th className="px-4 py-3 text-left text-gray-600 font-medium">
+                <th className="px-5 py-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wide">
                   サイズ
                 </th>
-                <th className="px-4 py-3 text-left text-gray-600 font-medium">
+                <th className="px-5 py-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wide">
                   登録日
                 </th>
-                <th className="px-4 py-3" />
+                <th className="px-5 py-4" />
               </tr>
             </thead>
             <tbody>
               {files.map((f) => (
                 <tr
                   key={f.id}
-                  className="border-b border-gray-100 last:border-0"
+                  className="border-b border-gray-100 last:border-0 hover:bg-gray-50 transition-colors"
                 >
-                  <td className="px-4 py-2">
+                  <td className="px-5 py-4">
                     {f.mimeType.startsWith("image/") ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
                         src={f.path}
                         alt={f.name}
-                        className="w-16 h-10 object-cover rounded"
+                        className="w-20 h-12 object-cover rounded-lg"
                       />
                     ) : (
-                      <div className="w-16 h-10 bg-gray-100 rounded flex items-center justify-center text-xs text-gray-400">
+                      <div className="w-20 h-12 bg-gray-100 rounded-lg flex items-center justify-center text-sm text-gray-500 font-medium">
                         動画
                       </div>
                     )}
                   </td>
-                  <td className="px-4 py-2 text-gray-800">{f.name}</td>
-                  <td className="px-4 py-2 text-gray-500">{f.mimeType}</td>
-                  <td className="px-4 py-2 text-gray-500">
+                  <td className="px-5 py-4 text-base text-gray-800 font-medium">
+                    {f.name}
+                  </td>
+                  <td className="px-5 py-4 text-sm text-gray-500">{f.mimeType}</td>
+                  <td className="px-5 py-4 text-base text-gray-600">
                     {formatBytes(f.size)}
                   </td>
-                  <td className="px-4 py-2 text-gray-500">
+                  <td className="px-5 py-4 text-base text-gray-600">
                     {new Date(f.createdAt).toLocaleDateString("ja-JP")}
                   </td>
-                  <td className="px-4 py-2 text-right">
+                  <td className="px-5 py-4 text-right">
                     <button
                       onClick={() => handleDelete(f.id, f.name)}
-                      className="text-red-500 hover:text-red-700 text-xs px-2 py-1 rounded hover:bg-red-50"
+                      className="px-4 py-2 bg-red-100 text-red-700 text-sm font-medium rounded-lg hover:bg-red-200 transition-colors border border-red-200"
                     >
                       削除
                     </button>
