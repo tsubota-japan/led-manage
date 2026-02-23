@@ -34,9 +34,13 @@ export async function POST(req: NextRequest) {
     const buffer = Buffer.from(await file.arrayBuffer());
     fs.writeFileSync(filepath, buffer);
 
+    // Use custom display name if provided, otherwise fall back to original filename
+    const customName = (formData.get("name") as string | null)?.trim();
+    const displayName = customName || file.name;
+
     const record = await prisma.file.create({
       data: {
-        name: file.name,
+        name: displayName,
         path: `/uploads/${filename}`,
         mimeType: file.type || "application/octet-stream",
         size: file.size,
