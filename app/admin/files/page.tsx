@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 interface FileRecord {
   id: string;
@@ -21,7 +21,9 @@ export default function FilesPage() {
   const [files, setFiles] = useState<FileRecord[]>([]);
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState<string>("");
+  const [isDragOver, setIsDragOver] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const dragCounterRef = useRef(0);
 
   const load = () =>
     fetch("/api/files")
@@ -32,9 +34,12 @@ export default function FilesPage() {
     load();
   }, []);
 
-  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selected = e.target.files;
-    if (!selected || selected.length === 0) return;
+  const uploadFiles = useCallback(async (fileList: FileList | File[]) => {
+    const selected = Array.from(fileList).filter(
+      (f) => f.type.startsWith("image/") || f.type.startsWith("video/")
+    );
+    if (selected.length === 0) return;
+
     setUploading(true);
     setProgress("");
 
@@ -50,6 +55,39 @@ export default function FilesPage() {
     setUploading(false);
     if (inputRef.current) inputRef.current.value = "";
     load();
+  }, []);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) uploadFiles(e.target.files);
+  };
+
+  const handleDragEnter = (e: React.DragEvent) => {
+    e.preventDefault();
+    dragCounterRef.current++;
+    if (e.dataTransfer.types.includes("Files")) {
+      setIsDragOver(true);
+    }
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    dragCounterRef.current--;
+    if (dragCounterRef.current === 0) {
+      setIsDragOver(false);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    dragCounterRef.current = 0;
+    setIsDragOver(false);
+    if (uploading) return;
+    const dropped = e.dataTransfer.files;
+    if (dropped.length > 0) uploadFiles(dropped);
   };
 
   const handleDelete = async (id: string, name: string) => {
@@ -62,11 +100,13 @@ export default function FilesPage() {
     <div>
       <div className="flex items-center justify-between mb-8">
         <h2 className="text-3xl font-bold text-gray-800">ファイル管理</h2>
-        <label className={`px-5 py-3 text-base font-medium rounded-lg cursor-pointer transition-colors ${
-          uploading
-            ? "bg-gray-400 text-white cursor-not-allowed"
-            : "bg-blue-600 text-white hover:bg-blue-700"
-        }`}>
+        <label
+          className={`px-5 py-3 text-base font-medium rounded-lg cursor-pointer transition-colors ${
+            uploading
+              ? "bg-gray-400 text-white cursor-not-allowed"
+              : "bg-blue-600 text-white hover:bg-blue-700"
+          }`}
+        >
           ＋ ファイルを追加
           <input
             ref={inputRef}
@@ -74,22 +114,54 @@ export default function FilesPage() {
             multiple
             accept="image/*,video/*"
             className="hidden"
-            onChange={handleUpload}
+            onChange={handleInputChange}
             disabled={uploading}
           />
         </label>
       </div>
 
-      {uploading && (
-        <div className="mb-6 p-4 bg-blue-50 text-blue-700 rounded-xl text-base border border-blue-200">
-          {progress}
-        </div>
-      )}
+      {/* Drop zone */}
+      <div
+        onDragEnter={handleDragEnter}
+        onDragLeave={handleDragLeave}
+        onDragOver={handleDragOver}
+        onDrop={handleDrop}
+        onClick={() => !uploading && inputRef.current?.click()}
+        className={`mb-6 rounded-xl border-2 border-dashed transition-colors cursor-pointer ${
+          isDragOver
+            ? "border-blue-500 bg-blue-50"
+            : "border-gray-300 bg-white hover:border-blue-400 hover:bg-gray-50"
+        } ${uploading ? "cursor-not-allowed opacity-60" : ""}`}
+      >
+        {uploading ? (
+          <div className="px-6 py-8 text-center">
+            <div className="text-4xl mb-3">⏳</div>
+            <p className="text-base font-medium text-blue-700">{progress}</p>
+          </div>
+        ) : isDragOver ? (
+          <div className="px-6 py-10 text-center">
+            <div className="text-5xl mb-3">📂</div>
+            <p className="text-lg font-semibold text-blue-600">
+              ここにドロップしてアップロード
+            </p>
+          </div>
+        ) : (
+          <div className="px-6 py-8 text-center">
+            <div className="text-4xl mb-3">🖼️</div>
+            <p className="text-base font-medium text-gray-600">
+              ここにファイルをドラッグ＆ドロップ
+            </p>
+            <p className="text-sm text-gray-400 mt-1">
+              またはクリックしてファイルを選択（画像・動画）
+            </p>
+          </div>
+        )}
+      </div>
 
       {files.length === 0 ? (
-        <div className="bg-white rounded-xl p-12 text-center border-2 border-dashed border-gray-300">
-          <p className="text-gray-500 text-lg">
-            ファイルがありません。上のボタンからアップロードしてください。
+        <div className="bg-white rounded-xl p-10 text-center border border-gray-200">
+          <p className="text-gray-400 text-base">
+            アップロードされたファイルがありません
           </p>
         </div>
       ) : (
@@ -138,7 +210,9 @@ export default function FilesPage() {
                   <td className="px-5 py-4 text-base text-gray-800 font-medium">
                     {f.name}
                   </td>
-                  <td className="px-5 py-4 text-sm text-gray-500">{f.mimeType}</td>
+                  <td className="px-5 py-4 text-sm text-gray-500">
+                    {f.mimeType}
+                  </td>
                   <td className="px-5 py-4 text-base text-gray-600">
                     {formatBytes(f.size)}
                   </td>
