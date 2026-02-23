@@ -6,6 +6,24 @@ import { nanoid } from "nanoid";
 
 export const dynamic = "force-dynamic";
 
+const MIME_BY_EXT: Record<string, string> = {
+  ".mp4": "video/mp4",
+  ".mov": "video/quicktime",
+  ".webm": "video/webm",
+  ".avi": "video/x-msvideo",
+  ".mkv": "video/x-matroska",
+  ".m4v": "video/mp4",
+  ".jpg": "image/jpeg",
+  ".jpeg": "image/jpeg",
+  ".png": "image/png",
+  ".gif": "image/gif",
+  ".webp": "image/webp",
+  ".avif": "image/avif",
+  ".svg": "image/svg+xml",
+  ".heic": "image/heic",
+  ".heif": "image/heif",
+};
+
 export async function GET() {
   const files = await prisma.file.findMany({
     orderBy: { createdAt: "desc" },
@@ -48,6 +66,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
     }
 
+    const MAX_SIZE = 100 * 1024 * 1024; // 100MB
+    if (file.size > MAX_SIZE) {
+      return NextResponse.json(
+        { error: `ファイルサイズは100MB以内にしてください（現在: ${(file.size / 1024 / 1024).toFixed(1)} MB）` },
+        { status: 413 }
+      );
+    }
+
     const ext = path.extname(file.name);
     const filename = `${nanoid()}${ext}`;
     const filepath = path.join(uploadDir, filename);
@@ -66,7 +92,7 @@ export async function POST(req: NextRequest) {
       data: {
         name: displayName,
         path: `/uploads/${filename}`,
-        mimeType: file.type || "application/octet-stream",
+        mimeType: file.type || MIME_BY_EXT[ext.toLowerCase()] || "application/octet-stream",
         size: file.size,
       },
     });
