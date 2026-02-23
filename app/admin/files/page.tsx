@@ -217,9 +217,9 @@ export default function FilesPage() {
         ) : (
           /* ステージングパネル */
           <div className="p-5">
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center justify-between mb-1">
               <p className="text-base font-semibold text-gray-700">
-                アップロード前に名前を確認・編集できます
+                ファイル名を確認・編集してからアップロード
               </p>
               <label className="text-sm text-blue-600 hover:underline cursor-pointer font-medium">
                 ＋ さらに追加
@@ -232,6 +232,9 @@ export default function FilesPage() {
                 />
               </label>
             </div>
+            <p className="text-sm text-gray-400 mb-4">
+              名前は変更しなくてもOKです。同名ファイルが既にある場合は自動で連番が付きます。
+            </p>
 
             <div className="space-y-3 mb-5">
               {staged.map((s, i) => (
@@ -254,19 +257,24 @@ export default function FilesPage() {
                   )}
 
                   {/* 名前入力 */}
-                  <div className="flex-1 flex items-center gap-1 min-w-0">
-                    <input
-                      type="text"
-                      value={s.basename}
-                      onChange={(e) => updateBasename(i, e.target.value)}
-                      className="flex-1 px-3 py-2 text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 min-w-0"
-                      placeholder="ファイル名"
-                    />
-                    {s.ext && (
-                      <span className="text-base text-gray-500 font-mono shrink-0">
-                        {s.ext}
-                      </span>
-                    )}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-1">
+                      <input
+                        type="text"
+                        value={s.basename}
+                        onChange={(e) => updateBasename(i, e.target.value)}
+                        className="flex-1 px-3 py-2 text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 min-w-0"
+                        placeholder={s.basename}
+                      />
+                      {s.ext && (
+                        <span className="text-base text-gray-500 font-mono shrink-0">
+                          {s.ext}
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs text-gray-400 mt-1 pl-1">
+                      元のファイル名: {s.file.name}
+                    </p>
                   </div>
 
                   {/* サイズ */}

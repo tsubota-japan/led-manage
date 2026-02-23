@@ -13,6 +13,27 @@ export async function GET() {
   return NextResponse.json(files);
 }
 
+/**
+ * 表示名の重複を確認し、重複があれば "(2)", "(3)"... と連番を付与して返す。
+ * 例: "photo.jpg" が存在 → "photo (2).jpg"、それも存在 → "photo (3).jpg"
+ */
+async function resolveDisplayName(name: string): Promise<string> {
+  const existing = await prisma.file.findFirst({ where: { name } });
+  if (!existing) return name;
+
+  const dotIndex = name.lastIndexOf(".");
+  const basename = dotIndex > 0 ? name.slice(0, dotIndex) : name;
+  const ext = dotIndex > 0 ? name.slice(dotIndex) : "";
+
+  let n = 2;
+  while (true) {
+    const candidate = `${basename} (${n})${ext}`;
+    const conflict = await prisma.file.findFirst({ where: { name: candidate } });
+    if (!conflict) return candidate;
+    n++;
+  }
+}
+
 export async function POST(req: NextRequest) {
   const uploadDir = path.join(process.cwd(), "public", "uploads");
   if (!fs.existsSync(uploadDir)) {
@@ -34,9 +55,12 @@ export async function POST(req: NextRequest) {
     const buffer = Buffer.from(await file.arrayBuffer());
     fs.writeFileSync(filepath, buffer);
 
-    // Use custom display name if provided, otherwise fall back to original filename
+    // カスタム名があればそれを使用、なければ元のファイル名
     const customName = (formData.get("name") as string | null)?.trim();
-    const displayName = customName || file.name;
+    const rawName = customName || file.name;
+
+    // 重複があれば連番を付与
+    const displayName = await resolveDisplayName(rawName);
 
     const record = await prisma.file.create({
       data: {
