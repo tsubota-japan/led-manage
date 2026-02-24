@@ -6,13 +6,14 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  const { groupId, startTime, repeat, priority, active } = await req.json();
+  const { groupId, startTime, endTime, repeat, priority, active } = await req.json();
 
   const schedule = await prisma.schedule.update({
     where: { id },
     data: {
       ...(groupId !== undefined && { groupId }),
       ...(startTime !== undefined && { startTime: new Date(startTime) }),
+      ...(endTime !== undefined && { endTime: endTime ? new Date(endTime) : null }),
       ...(repeat !== undefined && { repeat }),
       ...(priority !== undefined && { priority }),
       ...(active !== undefined && { active }),

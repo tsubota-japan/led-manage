@@ -27,6 +27,15 @@ export function initScheduler() {
       });
 
       for (const schedule of schedules) {
+        // endTime が設定されており、現在時刻を過ぎていればスキップして無効化
+        if (schedule.endTime && now > schedule.endTime) {
+          await prisma.schedule.update({
+            where: { id: schedule.id },
+            data: { active: false },
+          });
+          continue;
+        }
+
         // Broadcast to all displays
         broadcastToAll(schedule.groupId, schedule.priority);
 
@@ -34,16 +43,19 @@ export function initScheduler() {
         if (schedule.repeat === "daily") {
           const next = new Date(schedule.startTime);
           next.setDate(next.getDate() + 1);
+          // 次回発火時刻が endTime を超えていれば無効化
+          const pastEnd = schedule.endTime && next > schedule.endTime;
           await prisma.schedule.update({
             where: { id: schedule.id },
-            data: { startTime: next },
+            data: { startTime: next, ...(pastEnd && { active: false }) },
           });
         } else if (schedule.repeat === "weekly") {
           const next = new Date(schedule.startTime);
           next.setDate(next.getDate() + 7);
+          const pastEnd = schedule.endTime && next > schedule.endTime;
           await prisma.schedule.update({
             where: { id: schedule.id },
-            data: { startTime: next },
+            data: { startTime: next, ...(pastEnd && { active: false }) },
           });
         } else {
           // none - deactivate

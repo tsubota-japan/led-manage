@@ -47,3 +47,6 @@ prisma/*.db-journal
 # uploaded files
 /public/uploads/*
 !/public/uploads/.gitkeep
+
+# temporary chunk files (chunked upload)
+/tmp/

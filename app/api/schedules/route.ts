@@ -10,7 +10,7 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-  const { groupId, startTime, repeat, priority } = await req.json();
+  const { groupId, startTime, endTime, repeat, priority } = await req.json();
 
   if (!groupId || !startTime) {
     return NextResponse.json(
@@ -23,6 +23,7 @@ export async function POST(req: NextRequest) {
     data: {
       groupId,
       startTime: new Date(startTime),
+      endTime: endTime ? new Date(endTime) : null,
       repeat: repeat ?? "none",
       priority: priority ?? 0,
       active: true,

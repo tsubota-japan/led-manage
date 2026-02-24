@@ -134,6 +134,7 @@ export default function GroupEditorPage() {
   const [items, setItems] = useState<GroupFile[]>([]);
   const [saving, setSaving] = useState(false);
   const [groupName, setGroupName] = useState("");
+  const [fileSearch, setFileSearch] = useState("");
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -238,25 +239,74 @@ export default function GroupEditorPage() {
       </div>
 
       <div className="mb-7">
-        <label className="block text-sm font-semibold text-gray-600 mb-2">
-          ファイルを追加
-        </label>
-        <select
-          onChange={(e) => {
-            if (e.target.value) {
-              handleAddFile(e.target.value);
-              e.target.value = "";
-            }
-          }}
-          className="w-full px-4 py-3 text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-        >
-          <option value="">ファイルを選択...</option>
-          {allFiles.map((f) => (
-            <option key={f.id} value={f.id}>
-              {f.name}
-            </option>
-          ))}
-        </select>
+        <div className="flex items-center justify-between mb-3">
+          <label className="text-sm font-semibold text-gray-600">
+            ファイルを追加
+            <span className="ml-2 text-xs font-normal text-gray-400">
+              （クリックで追加）
+            </span>
+          </label>
+          <input
+            type="text"
+            value={fileSearch}
+            onChange={(e) => setFileSearch(e.target.value)}
+            placeholder="ファイル名で絞り込み..."
+            className="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 w-52"
+          />
+        </div>
+
+        {allFiles.length === 0 ? (
+          <div className="text-center text-gray-400 text-sm py-8 border-2 border-dashed border-gray-200 rounded-xl">
+            アップロードされたファイルがありません
+          </div>
+        ) : (
+          <div className="border border-gray-200 rounded-xl p-3 bg-gray-50 max-h-72 overflow-y-auto">
+            <div className="grid grid-cols-4 gap-2 sm:grid-cols-5 md:grid-cols-6">
+              {allFiles
+                .filter((f) =>
+                  fileSearch === "" ||
+                  f.name.toLowerCase().includes(fileSearch.toLowerCase())
+                )
+                .map((f) => (
+                  <button
+                    key={f.id}
+                    onClick={() => handleAddFile(f.id)}
+                    title={f.name}
+                    className="group relative flex flex-col rounded-lg overflow-hidden border-2 border-transparent hover:border-blue-500 hover:shadow-md transition-all bg-white focus:outline-none focus:border-blue-500"
+                  >
+                    {f.mimeType.startsWith("image/") ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={f.path}
+                        alt={f.name}
+                        className="w-full aspect-video object-cover"
+                      />
+                    ) : (
+                      <div className="w-full aspect-video bg-gray-200 flex flex-col items-center justify-center gap-1">
+                        <span className="text-2xl">▶</span>
+                        <span className="text-xs text-gray-500 font-medium">動画</span>
+                      </div>
+                    )}
+                    <div className="px-1.5 py-1.5 w-full">
+                      <p className="text-xs text-gray-700 truncate leading-tight">{f.name}</p>
+                    </div>
+                    <div className="absolute inset-0 bg-blue-600/0 group-hover:bg-blue-600/10 transition-colors" />
+                    <div className="absolute top-1 right-1 w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow">
+                      <span className="text-white text-xs font-bold leading-none">＋</span>
+                    </div>
+                  </button>
+                ))}
+            </div>
+            {allFiles.filter((f) =>
+              fileSearch === "" ||
+              f.name.toLowerCase().includes(fileSearch.toLowerCase())
+            ).length === 0 && (
+              <p className="text-center text-gray-400 text-sm py-6">
+                「{fileSearch}」に一致するファイルがありません
+              </p>
+            )}
+          </div>
+        )}
       </div>
 
       <div className="mb-7">

@@ -48,6 +48,7 @@ export default function FilesPage() {
   const [renaming, setRenaming] = useState<RenameState | null>(null);
   const [sizeError, setSizeError] = useState<string | null>(null);
   const [previewing, setPreviewing] = useState<FileRecord | null>(null);
+  const [uploadErrors, setUploadErrors] = useState<string[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
   const dragCounterRef = useRef(0);
 
@@ -64,13 +65,13 @@ export default function FilesPage() {
   const stageFiles = (fileList: FileList | File[]) => {
     const VIDEO_EXTS = [".mp4", ".mov", ".webm", ".avi", ".mkv", ".m4v"];
     const IMAGE_EXTS = [".jpg", ".jpeg", ".png", ".gif", ".webp", ".avif", ".svg", ".heic", ".heif"];
-    const MAX_SIZE = 100 * 1024 * 1024;
+    const MAX_SIZE = 500 * 1024 * 1024;
 
     const all = Array.from(fileList);
     const oversized = all.filter((f) => f.size > MAX_SIZE);
     if (oversized.length > 0) {
       setSizeError(
-        `ファイルサイズは100MB以内にしてください。以下のファイルは追加できません：\n${oversized.map((f) => `・${f.name}（${(f.size / 1024 / 1024).toFixed(1)} MB）`).join("\n")}`
+        `ファイルサイズは500MB以内にしてください。以下のファイルは追加できません：\n${oversized.map((f) => `・${f.name}（${(f.size / 1024 / 1024).toFixed(1)} MB）`).join("\n")}`
       );
     } else {
       setSizeError(null);
@@ -145,27 +146,98 @@ export default function FilesPage() {
     setStaged([]);
   };
 
+  // 1チャンクの最大サイズ（8MB）。Codespaces等のプロキシ制限を回避
+  const CHUNK_SIZE = 8 * 1024 * 1024;
+
+  const uploadSingle = async (file: File, displayName: string): Promise<string | null> => {
+    const form = new FormData();
+    form.append("file", file);
+    form.append("name", displayName);
+    const res = await fetch("/api/files", { method: "POST", body: form });
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      return data.error ?? `サーバーエラー (${res.status})`;
+    }
+    return null;
+  };
+
+  const uploadChunked = async (file: File, displayName: string): Promise<string | null> => {
+    const uploadId = crypto.randomUUID();
+    const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+
+    for (let i = 0; i < totalChunks; i++) {
+      const start = i * CHUNK_SIZE;
+      const end = Math.min(start + CHUNK_SIZE, file.size);
+      const chunk = file.slice(start, end);
+
+      const form = new FormData();
+      form.append("chunk", chunk);
+      form.append("uploadId", uploadId);
+      form.append("chunkIndex", String(i));
+      form.append("totalChunks", String(totalChunks));
+
+      const res = await fetch("/api/files/chunks", { method: "POST", body: form });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        return data.error ?? `チャンク ${i + 1}/${totalChunks} の送信に失敗しました`;
+      }
+    }
+
+    const res = await fetch("/api/files/finalize", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        uploadId,
+        fileName: file.name,
+        displayName,
+        mimeType: file.type,
+        totalChunks,
+        totalSize: file.size,
+      }),
+    });
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      return data.error ?? `ファイル結合に失敗しました (${res.status})`;
+    }
+    return null;
+  };
+
   // ステージングされたファイルをアップロード
   const handleUpload = async () => {
     if (staged.length === 0) return;
     setUploading(true);
+    setUploadErrors([]);
     setProgress({ current: 0, total: staged.length });
+
+    const errors: string[] = [];
 
     for (let i = 0; i < staged.length; i++) {
       const { file, basename, ext } = staged[i];
       setProgress({ current: i + 1, total: staged.length });
 
       const displayName = basename.trim() ? `${basename.trim()}${ext}` : file.name;
-      const form = new FormData();
-      form.append("file", file);
-      form.append("name", displayName);
-      await fetch("/api/files", { method: "POST", body: form });
+
+      if (file.size > 500 * 1024 * 1024) {
+        errors.push(`${file.name}: ファイルサイズは500MB以内にしてください`);
+        continue;
+      }
+
+      try {
+        // 8MB 超はチャンク分割アップロード（プロキシの制限を回避）
+        const error = file.size > CHUNK_SIZE
+          ? await uploadChunked(file, displayName)
+          : await uploadSingle(file, displayName);
+        if (error) errors.push(`${file.name}: ${error}`);
+      } catch (e) {
+        errors.push(`${file.name}: ${e instanceof Error ? e.message : "通信エラー"}`);
+      }
     }
 
     staged.forEach((s) => { if (s.preview) URL.revokeObjectURL(s.preview); });
     setStaged([]);
     setUploading(false);
     setProgress(null);
+    if (errors.length > 0) setUploadErrors(errors);
     load();
   };
 
@@ -218,6 +290,25 @@ export default function FilesPage() {
           />
         </label>
       </div>
+
+      {/* アップロードエラー */}
+      {uploadErrors.length > 0 && (
+        <div className="mb-4 px-5 py-4 bg-red-50 border border-red-200 rounded-xl flex items-start gap-3">
+          <span className="text-red-500 text-xl shrink-0">⚠</span>
+          <div className="flex-1">
+            <p className="text-sm font-semibold text-red-700 mb-1">アップロードに失敗したファイルがあります</p>
+            {uploadErrors.map((msg, i) => (
+              <p key={i} className="text-sm text-red-700">{msg}</p>
+            ))}
+          </div>
+          <button
+            onClick={() => setUploadErrors([])}
+            className="text-red-400 hover:text-red-600 text-xl leading-none shrink-0"
+          >
+            ×
+          </button>
+        </div>
+      )}
 
       {/* サイズエラー */}
       {sizeError && (
@@ -344,8 +435,9 @@ export default function FilesPage() {
                   </div>
 
                   {/* サイズ */}
-                  <span className="text-sm text-gray-400 shrink-0">
+                  <span className={`text-sm shrink-0 ${s.file.size > 500 * 1024 * 1024 ? "text-red-500 font-semibold" : "text-gray-400"}`}>
                     {formatBytes(s.file.size)}
+                    {s.file.size > 500 * 1024 * 1024 && " ⚠ 500MB超"}
                   </span>
 
                   {/* 削除 */}

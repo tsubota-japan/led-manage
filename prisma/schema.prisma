@@ -39,14 +39,15 @@ model GroupFile {
 }
 
 model Schedule {
-  id        String   @id @default(cuid())
+  id        String    @id @default(cuid())
   groupId   String
   startTime DateTime
-  repeat    String   @default("none")
-  priority  Int      @default(0)
-  active    Boolean  @default(true)
-  createdAt DateTime @default(now())
-  group     Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  endTime   DateTime?
+  repeat    String    @default("none")
+  priority  Int       @default(0)
+  active    Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  group     Group     @relation(fields: [groupId], references: [id], onDelete: Cascade)
 }
 
 model Display {

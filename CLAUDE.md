@@ -23,7 +23,7 @@
 | ORM | Prisma 5.22.0 |
 | DB | SQLite (`prisma/dev.db`) |
 | ドラッグ&ドロップ | @dnd-kit/core 6, @dnd-kit/sortable 10, @dnd-kit/utilities 3 |
-| ファイルアップロード | formidable 3 |
+| ファイルアップロード | native req.formData() |
 | スケジューラー | node-cron 4 |
 | ID生成 | nanoid 5 |
 | ランタイム | Node.js 20 |
@@ -67,6 +67,7 @@ led-manage/
 │       ├── groups/[id]/files/route.ts # PUT（並び替え）, POST（追加）
 │       ├── schedules/route.ts        # GET, POST
 │       ├── schedules/[id]/route.ts   # PUT, DELETE
+│       ├── broadcasts/route.ts       # POST（即時公開）
 │       ├── displays/route.ts         # GET, POST
 │       ├── displays/[id]/route.ts    # PUT, DELETE
 │       └── sse/[code]/route.ts       # SSE エンドポイント
@@ -115,6 +116,7 @@ led-manage/
 | id | String (cuid) | PK |
 | groupId | String | FK → Group (Cascade) |
 | startTime | DateTime | 発火時刻 |
+| endTime | DateTime? | 終了時刻（null = 無制限、繰り返し時はこの時刻以降停止） |
 | repeat | String | `none` / `daily` / `weekly` |
 | priority | Int | 優先度（高いほど割り込み優先、デフォルト0） |
 | active | Boolean | 有効/無効フラグ |
