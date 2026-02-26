@@ -67,7 +67,7 @@ led-manage/
 │       ├── groups/[id]/files/route.ts # PUT（並び替え）, POST（追加）
 │       ├── schedules/route.ts        # GET, POST
 │       ├── schedules/[id]/route.ts   # PUT, DELETE
-│       ├── broadcasts/route.ts       # POST（即時公開）
+│       ├── broadcasts/route.ts       # GET（接続数）, POST（即時配信）, DELETE（優先度リセット）
 │       ├── displays/route.ts         # GET, POST
 │       ├── displays/[id]/route.ts    # PUT, DELETE
 │       └── sse/[code]/route.ts       # SSE エンドポイント
@@ -133,32 +133,51 @@ led-manage/
 ## 主要コンポーネントの設計
 
 ### SSE Manager (`lib/sse-manager.ts`)
-- モジュールレベルの `Map<code, SSEClient>` でSSE接続を管理
-- `registerClient(code, controller)` / `unregisterClient(code)`
-- `pushToDisplay(code, groupId, priority)` — `priority >= currentPriority` の時のみ送信
-- `broadcastToAll(groupId, priority)` — 全ディスプレイに送信
-- `isConnected(code)` — オンライン/オフライン判定
+- `globalThis` ベースの `Map<code, SSEClient>` でSSE接続を管理（Turbopack のモジュール分離対策）
+- `registerClient(code, controller)` — 登録時に `lastBroadcast` or `__sseGlobalLast` を再送（再接続対応）
+- `unregisterClient(code)` — 切断時に Map から削除
+- `pushToDisplay(code, groupId, priority): boolean` — `priority >= currentPriority` の時のみ送信。送信成否を返す
+- `broadcastToAll(groupId, priority): number` — 全接続ディスプレイに送信。実際に送信できた台数を返す
+- `isConnected(code): boolean` — オンライン/オフライン判定
+- `getConnectedCount(): number` — 接続中ディスプレイ数を返す
+- `resetAllClientPriorities()` — 全クライアントの `currentPriority` を `-1` にリセット。`__sseGlobalLast` と `lastBroadcast` の priority も `-1` に更新
+
+#### 優先度の仕組み
+- `currentPriority` は各クライアントが保持。`priority >= currentPriority` を満たすブロードキャストのみ受け付ける
+- **同一 tick 内**では優先度が高いものが先に発火し、低いものをブロックする（意図的な割り込み制御）
+- **tick をまたぐ際**はスケジューラーが `resetたいむAllClientPriorities()` を呼んでリセットするため、前 tick の高優先度が次 tick のスケジュールを阻害しない
+- 手動リセット: `DELETE /api/broadcasts` で即時リセット可能
 
 ### Scheduler (`lib/scheduler.ts` + `instrumentation.ts`)
-- node-cron で毎分実行
-- `startTime` が「現在時刻から1分以内」のアクティブスケジュールを検索して発火
-- `repeat=daily` → startTime を +1日に更新
-- `repeat=weekly` → startTime を +7日に更新
-- `repeat=none` → `active=false` に更新
 - `instrumentation.ts` の `register()` 関数（Node.js ランタイムのみ）で初期化
+- **起動時キャッチアップ** (`catchUpOverdueSchedules`): サーバー停止中に通過した `active=true` スケジュールを起動直後に処理する
+  - `repeat=none`: 即時発火 → `active=false`
+  - `repeat=daily/weekly`: `startTime` を次回以降に進めた上で発火
+  - `endTime` を過ぎているものは発火せず `active=false`
+  - 低優先度から順に処理し、`__sseGlobalLast` に高優先度が残るようにする
+- **毎分 cron**: tick 開始時に `resetAllClientPriorities()` を呼び、70 秒ウィンドウ内のスケジュールを発火
+  - `repeat=daily` → `startTime` を +1日に更新
+  - `repeat=weekly` → `startTime` を +7日に更新
+  - `repeat=none` → `active=false` に更新
+  - 次回 `startTime` が `endTime` を超える場合は `active=false`
 
 ### DisplayPlayer (`components/display/DisplayPlayer.tsx`)
 - SSE 接続（`/api/sse/[code]`）で `play` イベント受信
 - `groupId` を受け取り → `/api/groups/[id]` でファイル一覧を fetch
-- 画像: `setTimeout(advance, duration * 1000)`（duration null 時は 5 秒）
+- 画像: `setTimeout(advance, duration * 1000)`（duration null 時は 15 秒）
 - 動画: `<video onEnded={advance} />`
 - 末尾まで到達で index=0 に戻り永久ループ
 
 ### ファイルアップロード (`app/api/files/route.ts`)
-- formidable でmultipart 解析
+- native `req.formData()` で multipart 解析（formidable は使用しない）
 - `public/uploads/` に `nanoid()` ベースのファイル名で保存
-- Next.js Request → Node.js `IncomingMessage` への変換アダプターを使用
-- 最大ファイルサイズ: 500 MB
+- 最大ファイルサイズ: 500 MB（`next.config.ts` の `proxyClientMaxBodySize: "500mb"` で設定）
+
+### 即時配信 API (`app/api/broadcasts/route.ts`)
+- `GET /api/broadcasts` — 接続中ディスプレイ数 `{ connectedCount }` を返す
+- `POST /api/broadcasts` — `{ groupId, priority }` を受け取り全ディスプレイへ配信。`{ sent, connectedCount }` を返す
+  - `sent`: 実際に送信できた台数（優先度ブロックがある場合は 0 になる）
+- `DELETE /api/broadcasts` — 全ディスプレイの優先度を即時リセット（高優先度ブロック解除）
 
 ---
 
@@ -239,4 +258,13 @@ npx prisma generate        # クライアント再生成
 5. `/admin/groups` でグループを作成 → `/admin/groups/[id]` でファイルを追加・並び替え
 6. `/admin/schedules` でスケジュールを作成（即時テスト: 現在時刻+1分, priority=0）
 7. 1分後にディスプレイ画面で再生が始まることを確認
-8. 割り込みテスト: 別グループを高優先度（例: priority=10）で設定
+8. 割り込みテスト: 別グループを高優先度（例: priority=10）で「即時配信」
+9. 通常スケジュールに戻すには「優先度をリセット」ボタンを押すか、次の cron tick（最大1分）を待つ
+
+### スケジューラーのトラブルシューティング
+
+| 症状 | 原因 | 対処 |
+|---|---|---|
+| スケジュール時刻になっても発火しない | サーバー停止中に時刻を通過した | 再起動で起動時キャッチアップが発火する |
+| 「配信がブロックされました」と表示される | 高優先度ブロードキャストが残っている | 「優先度をリセット」ボタンを押す |
+| ディスプレイが「スタンバイ中」のまま | SSE 接続が切れている / スケジュールが未到達 | ディスプレイページを再読み込み、接続中台数を確認 |

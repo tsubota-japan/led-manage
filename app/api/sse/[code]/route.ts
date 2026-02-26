@@ -4,30 +4,30 @@ import { registerClient, unregisterClient } from "@/lib/sse-manager";
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
+const encoder = new TextEncoder();
+
 export async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ code: string }> }
 ) {
   const { code } = await params;
 
-  const stream = new ReadableStream({
+  let keepAliveInterval: ReturnType<typeof setInterval> | null = null;
+
+  const stream = new ReadableStream<Uint8Array>({
     start(controller) {
       registerClient(code, controller);
 
-      const keepAlive = setInterval(() => {
+      keepAliveInterval = setInterval(() => {
         try {
-          controller.enqueue(": keep-alive\n\n");
+          controller.enqueue(encoder.encode(": keep-alive\n\n"));
         } catch {
-          clearInterval(keepAlive);
+          if (keepAliveInterval) clearInterval(keepAliveInterval);
         }
-      }, 30000);
-
-      (controller as unknown as { _cleanup: () => void })._cleanup = () => {
-        clearInterval(keepAlive);
-        unregisterClient(code);
-      };
+      }, 5000);
     },
     cancel() {
+      if (keepAliveInterval) clearInterval(keepAliveInterval);
       unregisterClient(code);
     },
   });
@@ -35,8 +35,9 @@ export async function GET(
   return new Response(stream, {
     headers: {
       "Content-Type": "text/event-stream",
-      "Cache-Control": "no-cache",
+      "Cache-Control": "no-cache, no-transform",
       Connection: "keep-alive",
+      "X-Accel-Buffering": "no",
     },
   });
 }

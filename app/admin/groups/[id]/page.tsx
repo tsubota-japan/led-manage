@@ -43,10 +43,14 @@ interface Group {
 
 function SortableItem({
   gf,
+  isSelected,
+  onToggleSelect,
   onDurationChange,
   onRemove,
 }: {
   gf: GroupFile;
+  isSelected: boolean;
+  onToggleSelect: (id: string) => void;
   onDurationChange: (id: string, val: number | null) => void;
   onRemove: (id: string) => void;
 }) {
@@ -56,7 +60,7 @@ function SortableItem({
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-    opacity: isDragging ? 0.5 : 1,
+    opacity: isDragging ? 0.4 : 1,
   };
 
   const isImage = gf.file.mimeType.startsWith("image/");
@@ -65,8 +69,20 @@ function SortableItem({
     <div
       ref={setNodeRef}
       style={style}
-      className="flex items-center gap-4 bg-white border border-gray-200 rounded-xl p-4 mb-3 shadow-sm"
+      className={`flex items-center gap-4 border rounded-xl p-4 mb-3 shadow-sm transition-colors ${
+        isSelected
+          ? "bg-blue-50 border-blue-300 ring-1 ring-blue-200"
+          : "bg-white border-gray-200"
+      }`}
     >
+      <input
+        type="checkbox"
+        checked={isSelected}
+        onChange={() => onToggleSelect(gf.id)}
+        onClick={(e) => e.stopPropagation()}
+        className="w-4 h-4 rounded border-gray-300 text-blue-600 cursor-pointer shrink-0 accent-blue-600"
+      />
+
       <button
         {...attributes}
         {...listeners}
@@ -101,7 +117,7 @@ function SortableItem({
             min={1}
             max={3600}
             value={gf.duration ?? ""}
-            placeholder="5"
+            placeholder="15"
             onChange={(e) =>
               onDurationChange(
                 gf.id,
@@ -135,6 +151,7 @@ export default function GroupEditorPage() {
   const [saving, setSaving] = useState(false);
   const [groupName, setGroupName] = useState("");
   const [fileSearch, setFileSearch] = useState("");
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -152,17 +169,71 @@ export default function GroupEditorPage() {
       setGroupName(g.name);
       setItems(g.groupFiles);
       setAllFiles(files);
+      setSelectedIds(new Set());
     });
   }, [id]);
+
+  const handleToggleSelect = (itemId: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(itemId)) {
+        next.delete(itemId);
+      } else {
+        next.add(itemId);
+      }
+      return next;
+    });
+  };
+
+  const handleSelectAll = () => {
+    setSelectedIds(new Set(items.map((i) => i.id)));
+  };
+
+  const handleDeselectAll = () => {
+    setSelectedIds(new Set());
+  };
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
 
+    const activeId = active.id as string;
+    const overId = over.id as string;
+
     setItems((prev) => {
-      const oldIndex = prev.findIndex((i) => i.id === active.id);
-      const newIndex = prev.findIndex((i) => i.id === over.id);
-      return arrayMove(prev, oldIndex, newIndex);
+      const isMultiDrag = selectedIds.has(activeId) && selectedIds.size > 1;
+
+      if (!isMultiDrag) {
+        // 通常の1アイテム移動
+        const oldIndex = prev.findIndex((i) => i.id === activeId);
+        const newIndex = prev.findIndex((i) => i.id === overId);
+        return arrayMove(prev, oldIndex, newIndex);
+      }
+
+      // 複数選択での一括移動
+      const activeIndex = prev.findIndex((i) => i.id === activeId);
+      const overIndex = prev.findIndex((i) => i.id === overId);
+
+      // 選択済みアイテムを元の順序で取得
+      const selected = prev.filter((i) => selectedIds.has(i.id));
+      // 選択外のアイテム
+      const remaining = prev.filter((i) => !selectedIds.has(i.id));
+
+      let insertAt: number;
+      if (selectedIds.has(overId)) {
+        // ドロップ先も選択済みの場合: overIndex 手前の非選択アイテム数を挿入位置とする
+        insertAt = prev.slice(0, overIndex).filter((i) => !selectedIds.has(i.id)).length;
+      } else {
+        // ドロップ先が非選択アイテムの場合
+        const overInRemaining = remaining.findIndex((i) => i.id === overId);
+        // 下方向ドラッグ → ドロップ先の後ろに挿入
+        // 上方向ドラッグ → ドロップ先の前に挿入
+        insertAt = overIndex > activeIndex ? overInRemaining + 1 : overInRemaining;
+      }
+
+      const result = [...remaining];
+      result.splice(insertAt, 0, ...selected);
+      return result;
     });
   };
 
@@ -174,6 +245,11 @@ export default function GroupEditorPage() {
 
   const handleRemove = (gfId: string) => {
     setItems((prev) => prev.filter((i) => i.id !== gfId));
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      next.delete(gfId);
+      return next;
+    });
   };
 
   const handleAddFile = (fileId: string) => {
@@ -213,6 +289,9 @@ export default function GroupEditorPage() {
   };
 
   if (!group) return <p className="text-gray-500 text-base">読み込み中...</p>;
+
+  const selectedCount = selectedIds.size;
+  const allSelected = items.length > 0 && selectedCount === items.length;
 
   return (
     <div className="max-w-2xl">
@@ -310,9 +389,38 @@ export default function GroupEditorPage() {
       </div>
 
       <div className="mb-7">
-        <h3 className="text-sm font-semibold text-gray-600 mb-3">
-          再生順（ドラッグで並び替え）
-        </h3>
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-sm font-semibold text-gray-600">
+            再生順
+            <span className="ml-2 text-xs font-normal text-gray-400">
+              （チェックで複数選択 → ドラッグで一括移動）
+            </span>
+          </h3>
+
+          {items.length > 0 && (
+            <div className="flex items-center gap-2">
+              {selectedCount > 0 && (
+                <span className="text-sm font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded-lg border border-blue-200">
+                  {selectedCount}個選択中
+                </span>
+              )}
+              <button
+                onClick={allSelected ? handleDeselectAll : handleSelectAll}
+                className="px-3 py-1.5 bg-gray-100 text-gray-600 text-sm font-medium rounded-lg hover:bg-gray-200 transition-colors border border-gray-300"
+              >
+                {allSelected ? "選択解除" : "全選択"}
+              </button>
+              {selectedCount > 0 && !allSelected && (
+                <button
+                  onClick={handleDeselectAll}
+                  className="px-3 py-1.5 bg-gray-100 text-gray-600 text-sm font-medium rounded-lg hover:bg-gray-200 transition-colors border border-gray-300"
+                >
+                  選択解除
+                </button>
+              )}
+            </div>
+          )}
+        </div>
 
         {items.length === 0 ? (
           <div className="text-center text-gray-400 text-base py-10 border-2 border-dashed border-gray-300 rounded-xl">
@@ -332,6 +440,8 @@ export default function GroupEditorPage() {
                 <SortableItem
                   key={gf.id}
                   gf={gf}
+                  isSelected={selectedIds.has(gf.id)}
+                  onToggleSelect={handleToggleSelect}
                   onDurationChange={handleDurationChange}
                   onRemove={handleRemove}
                 />

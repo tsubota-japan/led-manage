@@ -100,7 +100,7 @@ export default function DisplayPlayer({ code }: Props) {
     const isVideo = item.file.mimeType.startsWith("video/");
 
     if (isImage) {
-      const duration = item.duration ?? 5;
+      const duration = item.duration ?? 15;
       timerRef.current = setTimeout(() => {
         advance(items);
       }, duration * 1000);
