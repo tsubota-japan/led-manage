@@ -220,8 +220,7 @@ export default function SchedulesPage() {
   });
   const [creating, setCreating] = useState(false);
 
-  // View
-  const [view, setView]               = useState<"list" | "timeline">("list");
+  // Timeline
   const [timelineDate, setTimelineDate] = useState(() => new Date());
   const [dragState, setDragState]      = useState<DragState | null>(null);
   const dragRef                        = useRef<DragState | null>(null);
@@ -259,15 +258,14 @@ export default function SchedulesPage() {
     return () => clearInterval(t);
   }, []);
 
-  // Auto-scroll to current time when opening timeline for today
+  // Auto-scroll to current time on mount
   useEffect(() => {
-    if (view !== "timeline" || !scrollRef.current) return;
-    if (!isSameDay(timelineDate, new Date())) return;
+    if (!scrollRef.current || !isSameDay(timelineDate, new Date())) return;
     const n = new Date();
     const minFromMidnight = n.getHours() * 60 + n.getMinutes();
     scrollRef.current.scrollLeft = Math.max(0, (minFromMidnight / 60) * HOUR_WIDTH - 300);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [view]); // only on view open
+  }, []); // mount only
 
   // ── Drag logic ───────────────────────────────────────────────────
   useEffect(() => {
@@ -445,32 +443,8 @@ export default function SchedulesPage() {
   // ── Render ───────────────────────────────────────────────────────
   return (
     <div>
-      {/* Header + tab switcher */}
-      <div className="flex items-center justify-between mb-8">
-        <h2 className="text-3xl font-bold text-gray-800">スケジュール管理</h2>
-        <div className="flex rounded-lg overflow-hidden border border-gray-200">
-          <button
-            onClick={() => setView("list")}
-            className={`px-5 py-2.5 text-sm font-medium transition-colors ${
-              view === "list"
-                ? "bg-blue-600 text-white"
-                : "bg-white text-gray-600 hover:bg-gray-50"
-            }`}
-          >
-            リスト
-          </button>
-          <button
-            onClick={() => setView("timeline")}
-            className={`px-5 py-2.5 text-sm font-medium transition-colors border-l border-gray-200 ${
-              view === "timeline"
-                ? "bg-blue-600 text-white"
-                : "bg-white text-gray-600 hover:bg-gray-50"
-            }`}
-          >
-            タイムライン
-          </button>
-        </div>
-      </div>
+      {/* Header */}
+      <h2 className="text-3xl font-bold text-gray-800 mb-8">スケジュール管理</h2>
 
       {/* ── 即時配信 (always shown) ─────────────────────────────── */}
       <div className="bg-white rounded-xl shadow-sm border border-blue-200 p-6 mb-8">
@@ -546,11 +520,9 @@ export default function SchedulesPage() {
         )}
       </div>
 
-      {/* ══════════════════════════════════════════════════════════ */}
-      {/* ── Timeline View ─────────────────────────────────────── */}
-      {/* ══════════════════════════════════════════════════════════ */}
-      {view === "timeline" && (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      {/* ── Timeline ─────────────────────────────────────────────── */}
+      <h3 className="text-lg font-semibold text-gray-700 mb-4">タイムライン</h3>
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-8">
           {/* Date navigation */}
           <div className="flex items-center gap-3 px-5 py-4 border-b border-gray-200">
             <button
@@ -762,15 +734,10 @@ export default function SchedulesPage() {
             )}
           </div>
         </div>
-      )}
 
-      {/* ══════════════════════════════════════════════════════════ */}
-      {/* ── List View ─────────────────────────────────────────── */}
-      {/* ══════════════════════════════════════════════════════════ */}
-      {view === "list" && (
-        <>
-          {/* New schedule form */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
+      {/* ── Schedule list ────────────────────────────────────────── */}
+      {/* New schedule form */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
             <h3 className="text-lg font-semibold text-gray-700 mb-5">新規スケジュール</h3>
             <form onSubmit={handleCreate} className="grid grid-cols-2 gap-5">
               <div>
@@ -854,6 +821,7 @@ export default function SchedulesPage() {
           </div>
 
           {/* Schedule list */}
+          <h3 className="text-lg font-semibold text-gray-700 mb-4">スケジュール一覧</h3>
           {schedules.length === 0 ? (
             <div className="bg-white rounded-xl p-12 text-center border-2 border-dashed border-gray-300">
               <p className="text-gray-500 text-lg">スケジュールがありません</p>
@@ -934,8 +902,6 @@ export default function SchedulesPage() {
               </table>
             </div>
           )}
-        </>
-      )}
     </div>
   );
 }
