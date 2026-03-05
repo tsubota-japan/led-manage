@@ -24,7 +24,7 @@ export default function AdminDashboard() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex items-center justify-between page-header mb-12">
         <h2 className="text-2xl font-semibold text-gray-900">ダッシュボード</h2>
         <Link
           href="/admin/displays"
@@ -37,7 +37,7 @@ export default function AdminDashboard() {
       {loading ? (
         <p className="text-gray-500 text-base">読み込み中...</p>
       ) : displays.length === 0 ? (
-        <div className="bg-white rounded-xl p-16 text-center border border-gray-200">
+        <div className="bg-white rounded-xl text-center border border-gray-200" style={{ padding: "64px" }}>
           <p className="text-gray-500 text-lg mb-4">ディスプレイが登録されていません</p>
           <Link
             href="/admin/displays"
@@ -51,7 +51,7 @@ export default function AdminDashboard() {
           {displays.map((d) => (
             <div
               key={d.id}
-              className="bg-white rounded-xl shadow-sm border border-gray-200 p-8"
+              className="bg-white rounded-xl shadow-sm border border-gray-200" style={{ padding: "32px" }}
             >
               <div className="flex items-center justify-between mb-5">
                 <h3 className="text-lg font-semibold text-gray-800">{d.name}</h3>

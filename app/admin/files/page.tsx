@@ -269,7 +269,7 @@ export default function FilesPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex items-center justify-between" style={{ marginBottom: "40px" }}>
         <h2 className="text-2xl font-semibold text-gray-900">ファイル管理</h2>
         <label
           className="btn-primary cursor-pointer"
@@ -468,7 +468,7 @@ export default function FilesPage() {
 
       {/* ファイル一覧 */}
       {files.length === 0 ? (
-        <div className="bg-white rounded-xl p-16 text-center border border-gray-200">
+        <div className="bg-white rounded-xl text-center border border-gray-200" style={{ padding: "64px" }}>
           <p className="text-gray-400 text-base">
             アップロードされたファイルがありません
           </p>

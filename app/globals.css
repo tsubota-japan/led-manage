@@ -18,6 +18,17 @@ body {
   padding: 20px 32px;
 }
 
+/* Section spacing — guaranteed margins */
+.admin-main h2.page-title {
+  margin-bottom: 48px;
+}
+.admin-main form.top-form {
+  margin-bottom: 64px;
+}
+.admin-main .page-header {
+  margin-bottom: 48px;
+}
+
 /* ── Unified button system ── */
 .btn-primary {
   display: inline-flex;

@@ -444,11 +444,11 @@ export default function SchedulesPage() {
   return (
     <div>
       {/* Header */}
-      <h2 className="text-2xl font-semibold text-gray-900 mb-8">スケジュール管理</h2>
+      <h2 className="text-2xl font-semibold text-gray-900" style={{ marginBottom: "36px" }}>スケジュール管理</h2>
 
       {/* ── 即時配信 (always shown) ─────────────────────────────── */}
-      <div className="bg-white rounded-xl shadow-sm border border-blue-200 p-10 mb-12">
-        <div className="flex items-start justify-between mb-1">
+      <div className="bg-white rounded-xl shadow-sm border border-blue-200" style={{ padding: "36px 40px", marginBottom: "36px" }}>
+        <div className="flex items-start justify-between mb-4">
           <h3 className="text-lg font-semibold text-gray-700">即時配信</h3>
           <span className="text-sm text-gray-500">
             接続中:{" "}
@@ -457,10 +457,10 @@ export default function SchedulesPage() {
             </span>
           </span>
         </div>
-        <p className="text-sm text-gray-500 mb-1">
+        <p className="text-sm text-gray-500 mb-3">
           スケジュールを作成せず、今すぐ全ディスプレイに配信します。
         </p>
-        <p className="text-xs text-gray-400 mb-5">
+        <p className="text-xs text-gray-400 mb-8">
           優先度が高いほど割り込み優先。高優先度で配信すると、次のスケジューラー実行（最大1分）まで低優先度のスケジュールが配信されなくなります。
         </p>
         <form onSubmit={handleBroadcast} className="flex flex-wrap items-end gap-4">
@@ -521,10 +521,10 @@ export default function SchedulesPage() {
       </div>
 
       {/* ── Timeline ─────────────────────────────────────────────── */}
-      <h3 className="text-lg font-semibold text-gray-700 mb-6">タイムライン</h3>
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-12">
+      <h3 className="text-lg font-semibold text-gray-700" style={{ marginBottom: "24px" }}>タイムライン</h3>
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden" style={{ marginBottom: "36px" }}>
           {/* Date navigation */}
-          <div className="flex items-center gap-3 px-8 py-6 border-b border-gray-200">
+          <div className="flex items-center gap-3 border-b border-gray-200" style={{ padding: "16px 24px" }}>
             <button
               onClick={prevDate}
               className="btn-secondary"
@@ -737,7 +737,7 @@ export default function SchedulesPage() {
 
       {/* ── Schedule list ────────────────────────────────────────── */}
       {/* New schedule form */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-10 mb-12">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200" style={{ padding: "36px 40px", marginBottom: "36px" }}>
             <h3 className="text-lg font-semibold text-gray-700 mb-6">新規スケジュール</h3>
             <form onSubmit={handleCreate} className="grid grid-cols-2 gap-5">
               <div>
@@ -821,7 +821,7 @@ export default function SchedulesPage() {
           </div>
 
           {/* Schedule list */}
-          <h3 className="text-lg font-semibold text-gray-700 mb-6">スケジュール一覧</h3>
+          <h3 className="text-lg font-semibold text-gray-700" style={{ marginBottom: "24px" }}>スケジュール一覧</h3>
           {schedules.length === 0 ? (
             <div className="bg-white rounded-xl p-16 text-center border border-gray-200">
               <p className="text-gray-500 text-lg">スケジュールがありません</p>

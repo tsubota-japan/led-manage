@@ -56,9 +56,9 @@ export default function DisplaysPage() {
 
   return (
     <div>
-      <h2 className="text-2xl font-semibold text-gray-900 mb-8">ディスプレイ管理</h2>
+      <h2 className="text-2xl font-semibold text-gray-900 page-title mb-12">ディスプレイ管理</h2>
 
-      <form onSubmit={handleCreate} className="flex gap-3 mb-8">
+      <form onSubmit={handleCreate} className="flex gap-3" style={{ marginBottom: "40px" }}>
         <input
           type="text"
           value={newName}
@@ -77,7 +77,7 @@ export default function DisplaysPage() {
       </form>
 
       {displays.length === 0 ? (
-        <div className="bg-white rounded-xl p-16 text-center border border-gray-200">
+        <div className="bg-white rounded-xl text-center border border-gray-200" style={{ padding: "64px" }}>
           <p className="text-gray-500 text-lg">ディスプレイが登録されていません</p>
         </div>
       ) : (

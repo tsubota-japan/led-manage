@@ -68,8 +68,8 @@ function SortableItem({
   return (
     <div
       ref={setNodeRef}
-      style={style}
-      className={`flex items-center gap-4 border rounded-xl p-4 mb-3 shadow-sm transition-colors ${
+      style={{ ...style, padding: "16px 20px", marginBottom: "10px" }}
+      className={`flex items-center gap-4 border rounded-xl shadow-sm transition-colors ${
         isSelected
           ? "bg-blue-50 border-blue-300 ring-1 ring-blue-200"
           : "bg-white border-gray-200"
@@ -124,16 +124,14 @@ function SortableItem({
                 e.target.value ? parseInt(e.target.value) : null
               )
             }
-            className="w-20 px-3 py-2 border border-gray-300 rounded-lg text-base focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="form-input"
+            style={{ width: "80px" }}
           />
           <span>秒</span>
         </label>
       )}
 
-      <button
-        onClick={() => onRemove(gf.id)}
-        className="px-5 py-3 bg-red-100 text-red-700 text-sm font-medium rounded-lg hover:bg-red-200 transition-colors border border-red-200 shrink-0"
-      >
+      <button onClick={() => onRemove(gf.id)} className="btn-danger shrink-0">
         削除
       </button>
     </div>
@@ -204,30 +202,21 @@ export default function GroupEditorPage() {
       const isMultiDrag = selectedIds.has(activeId) && selectedIds.size > 1;
 
       if (!isMultiDrag) {
-        // 通常の1アイテム移動
         const oldIndex = prev.findIndex((i) => i.id === activeId);
         const newIndex = prev.findIndex((i) => i.id === overId);
         return arrayMove(prev, oldIndex, newIndex);
       }
 
-      // 複数選択での一括移動
       const activeIndex = prev.findIndex((i) => i.id === activeId);
       const overIndex = prev.findIndex((i) => i.id === overId);
-
-      // 選択済みアイテムを元の順序で取得
       const selected = prev.filter((i) => selectedIds.has(i.id));
-      // 選択外のアイテム
       const remaining = prev.filter((i) => !selectedIds.has(i.id));
 
       let insertAt: number;
       if (selectedIds.has(overId)) {
-        // ドロップ先も選択済みの場合: overIndex 手前の非選択アイテム数を挿入位置とする
         insertAt = prev.slice(0, overIndex).filter((i) => !selectedIds.has(i.id)).length;
       } else {
-        // ドロップ先が非選択アイテムの場合
         const overInRemaining = remaining.findIndex((i) => i.id === overId);
-        // 下方向ドラッグ → ドロップ先の後ろに挿入
-        // 上方向ドラッグ → ドロップ先の前に挿入
         insertAt = overIndex > activeIndex ? overInRemaining + 1 : overInRemaining;
       }
 
@@ -295,42 +284,41 @@ export default function GroupEditorPage() {
 
   return (
     <div className="max-w-2xl">
-      <div className="flex items-center gap-4 mb-8">
-        <button
-          onClick={() => router.push("/admin/groups")}
-          className="px-5 py-3 bg-gray-100 text-gray-700 text-base font-medium rounded-lg hover:bg-gray-200 transition-colors border border-gray-300"
-        >
+      {/* ヘッダー */}
+      <div className="flex items-center gap-4" style={{ marginBottom: "40px" }}>
+        <button onClick={() => router.push("/admin/groups")} className="btn-secondary">
           ← 戻る
         </button>
-        <h2 className="text-3xl font-bold text-gray-800">グループ編集</h2>
+        <h2 className="text-2xl font-semibold text-gray-900">グループ編集</h2>
       </div>
 
-      <div className="mb-7">
-        <label className="block text-sm font-semibold text-gray-600 mb-2">
+      {/* グループ名 */}
+      <div style={{ marginBottom: "36px" }}>
+        <label className="block text-sm font-semibold text-gray-600" style={{ marginBottom: "8px" }}>
           グループ名
         </label>
         <input
           type="text"
           value={groupName}
           onChange={(e) => setGroupName(e.target.value)}
-          className="w-full px-4 py-3 text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+          className="form-input"
         />
       </div>
 
-      <div className="mb-7">
-        <div className="flex items-center justify-between mb-3">
+      {/* ファイルを追加 */}
+      <div style={{ marginBottom: "36px" }}>
+        <div className="flex items-center justify-between" style={{ marginBottom: "12px" }}>
           <label className="text-sm font-semibold text-gray-600">
             ファイルを追加
-            <span className="ml-2 text-xs font-normal text-gray-400">
-              （クリックで追加）
-            </span>
+            <span className="ml-2 text-xs font-normal text-gray-400">（クリックで追加）</span>
           </label>
           <input
             type="text"
             value={fileSearch}
             onChange={(e) => setFileSearch(e.target.value)}
             placeholder="ファイル名で絞り込み..."
-            className="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 w-52"
+            className="form-input"
+            style={{ width: "200px" }}
           />
         </div>
 
@@ -339,7 +327,7 @@ export default function GroupEditorPage() {
             アップロードされたファイルがありません
           </div>
         ) : (
-          <div className="border border-gray-200 rounded-xl p-3 bg-gray-50 max-h-72 overflow-y-auto">
+          <div className="border border-gray-200 rounded-xl bg-gray-50 max-h-72 overflow-y-auto" style={{ padding: "12px" }}>
             <div className="grid grid-cols-4 gap-2 sm:grid-cols-5 md:grid-cols-6">
               {allFiles
                 .filter((f) =>
@@ -388,8 +376,9 @@ export default function GroupEditorPage() {
         )}
       </div>
 
-      <div className="mb-7">
-        <div className="flex items-center justify-between mb-3">
+      {/* 再生順 */}
+      <div style={{ marginBottom: "40px" }}>
+        <div className="flex items-center justify-between" style={{ marginBottom: "12px" }}>
           <h3 className="text-sm font-semibold text-gray-600">
             再生順
             <span className="ml-2 text-xs font-normal text-gray-400">
@@ -406,14 +395,16 @@ export default function GroupEditorPage() {
               )}
               <button
                 onClick={allSelected ? handleDeselectAll : handleSelectAll}
-                className="px-3 py-1.5 bg-gray-100 text-gray-600 text-sm font-medium rounded-lg hover:bg-gray-200 transition-colors border border-gray-300"
+                className="btn-secondary"
+                style={{ padding: "7px 16px", fontSize: "13px" }}
               >
                 {allSelected ? "選択解除" : "全選択"}
               </button>
               {selectedCount > 0 && !allSelected && (
                 <button
                   onClick={handleDeselectAll}
-                  className="px-3 py-1.5 bg-gray-100 text-gray-600 text-sm font-medium rounded-lg hover:bg-gray-200 transition-colors border border-gray-300"
+                  className="btn-secondary"
+                  style={{ padding: "7px 16px", fontSize: "13px" }}
                 >
                   選択解除
                 </button>
@@ -451,18 +442,12 @@ export default function GroupEditorPage() {
         )}
       </div>
 
+      {/* 保存・キャンセル */}
       <div className="flex gap-3">
-        <button
-          onClick={handleSave}
-          disabled={saving}
-          className="px-7 py-3 bg-blue-600 text-white text-base font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
-        >
+        <button onClick={handleSave} disabled={saving} className="btn-primary">
           {saving ? "保存中..." : "保存"}
         </button>
-        <button
-          onClick={() => router.push("/admin/groups")}
-          className="px-7 py-3 bg-gray-200 text-gray-700 text-base font-medium rounded-lg hover:bg-gray-300 transition-colors"
-        >
+        <button onClick={() => router.push("/admin/groups")} className="btn-secondary">
           キャンセル
         </button>
       </div>
