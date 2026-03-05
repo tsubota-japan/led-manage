@@ -444,10 +444,10 @@ export default function SchedulesPage() {
   return (
     <div>
       {/* Header */}
-      <h2 className="text-3xl font-bold text-gray-800 mb-8">スケジュール管理</h2>
+      <h2 className="text-2xl font-semibold text-gray-900 mb-8">スケジュール管理</h2>
 
       {/* ── 即時配信 (always shown) ─────────────────────────────── */}
-      <div className="bg-white rounded-xl shadow-sm border border-blue-200 p-6 mb-8">
+      <div className="bg-white rounded-xl shadow-sm border border-blue-200 p-10 mb-12">
         <div className="flex items-start justify-between mb-1">
           <h3 className="text-lg font-semibold text-gray-700">即時配信</h3>
           <span className="text-sm text-gray-500">
@@ -470,7 +470,7 @@ export default function SchedulesPage() {
               value={broadcast.groupId}
               onChange={e => setBroadcast({ ...broadcast, groupId: e.target.value })}
               required
-              className="w-full px-4 py-3 text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="form-select w-full"
             >
               <option value="">グループを選択</option>
               {groups.map(g => <option key={g.id} value={g.id}>{g.name}</option>)}
@@ -485,13 +485,13 @@ export default function SchedulesPage() {
               type="number" min={0} max={100}
               value={broadcast.priority}
               onChange={e => setBroadcast({ ...broadcast, priority: parseInt(e.target.value) || 0 })}
-              className="w-full px-4 py-3 text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="form-input w-full"
             />
           </div>
           <button
             type="submit"
             disabled={broadcasting || !broadcast.groupId}
-            className="px-6 py-3 bg-green-600 text-white text-base font-medium rounded-lg hover:bg-green-700 disabled:opacity-50 transition-colors"
+            className="btn-success"
           >
             {broadcasting ? "配信中..." : "今すぐ配信"}
           </button>
@@ -499,7 +499,7 @@ export default function SchedulesPage() {
             type="button"
             onClick={handleReset}
             disabled={resetting}
-            className="px-5 py-3 bg-gray-100 text-gray-700 text-base font-medium rounded-lg hover:bg-gray-200 disabled:opacity-50 transition-colors border border-gray-300"
+            className="btn-secondary"
             title="高優先度ブロードキャストによるブロックを解除します"
           >
             {resetting ? "リセット中..." : "優先度をリセット"}
@@ -521,26 +521,26 @@ export default function SchedulesPage() {
       </div>
 
       {/* ── Timeline ─────────────────────────────────────────────── */}
-      <h3 className="text-lg font-semibold text-gray-700 mb-4">タイムライン</h3>
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-8">
+      <h3 className="text-lg font-semibold text-gray-700 mb-6">タイムライン</h3>
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-12">
           {/* Date navigation */}
-          <div className="flex items-center gap-3 px-5 py-4 border-b border-gray-200">
+          <div className="flex items-center gap-3 px-8 py-6 border-b border-gray-200">
             <button
               onClick={prevDate}
-              className="px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 border border-gray-300"
+              className="btn-secondary"
             >
               ← 前日
             </button>
             <button
               onClick={() => setTimelineDate(new Date())}
-              className="px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 border border-gray-300"
+              className="btn-secondary"
             >
               今日
             </button>
             <span className="text-base font-semibold text-gray-700">{formatDate(timelineDate)}</span>
             <button
               onClick={nextDate}
-              className="px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 border border-gray-300"
+              className="btn-secondary"
             >
               翌日 →
             </button>
@@ -737,8 +737,8 @@ export default function SchedulesPage() {
 
       {/* ── Schedule list ────────────────────────────────────────── */}
       {/* New schedule form */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
-            <h3 className="text-lg font-semibold text-gray-700 mb-5">新規スケジュール</h3>
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-10 mb-12">
+            <h3 className="text-lg font-semibold text-gray-700 mb-6">新規スケジュール</h3>
             <form onSubmit={handleCreate} className="grid grid-cols-2 gap-5">
               <div>
                 <label className="block text-sm font-semibold text-gray-600 mb-2">グループ</label>
@@ -746,7 +746,7 @@ export default function SchedulesPage() {
                   value={form.groupId}
                   onChange={e => setForm({ ...form, groupId: e.target.value })}
                   required
-                  className="w-full px-4 py-3 text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  className="form-select w-full"
                 >
                   <option value="">グループを選択</option>
                   {groups.map(g => <option key={g.id} value={g.id}>{g.name}</option>)}
@@ -764,7 +764,7 @@ export default function SchedulesPage() {
                     (e.target as HTMLInputElement).showPicker?.();
                   }}
                   required
-                  className="w-full px-4 py-3 text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  className="form-input w-full"
                 />
               </div>
 
@@ -778,7 +778,7 @@ export default function SchedulesPage() {
                   value={form.endTime}
                   onChange={e => setForm({ ...form, endTime: e.target.value })}
                   onClick={e => { (e.target as HTMLInputElement).showPicker?.(); }}
-                  className="w-full px-4 py-3 text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  className="form-input w-full"
                 />
               </div>
 
@@ -787,7 +787,7 @@ export default function SchedulesPage() {
                 <select
                   value={form.repeat}
                   onChange={e => setForm({ ...form, repeat: e.target.value })}
-                  className="w-full px-4 py-3 text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  className="form-select w-full"
                 >
                   <option value="none">1回のみ</option>
                   <option value="daily">毎日</option>
@@ -804,7 +804,7 @@ export default function SchedulesPage() {
                   type="number" min={0} max={100}
                   value={form.priority}
                   onChange={e => setForm({ ...form, priority: parseInt(e.target.value) || 0 })}
-                  className="w-full px-4 py-3 text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  className="form-input w-full"
                 />
               </div>
 
@@ -812,7 +812,7 @@ export default function SchedulesPage() {
                 <button
                   type="submit"
                   disabled={creating}
-                  className="px-6 py-3 bg-blue-600 text-white text-base font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
+                  className="btn-primary"
                 >
                   {creating ? "作成中..." : "スケジュール作成"}
                 </button>
@@ -821,23 +821,23 @@ export default function SchedulesPage() {
           </div>
 
           {/* Schedule list */}
-          <h3 className="text-lg font-semibold text-gray-700 mb-4">スケジュール一覧</h3>
+          <h3 className="text-lg font-semibold text-gray-700 mb-6">スケジュール一覧</h3>
           {schedules.length === 0 ? (
-            <div className="bg-white rounded-xl p-12 text-center border-2 border-dashed border-gray-300">
+            <div className="bg-white rounded-xl p-16 text-center border border-gray-200">
               <p className="text-gray-500 text-lg">スケジュールがありません</p>
             </div>
           ) : (
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-              <table className="w-full">
+              <table className="w-full admin-table">
                 <thead className="bg-gray-50 border-b border-gray-200">
                   <tr>
-                    <th className="px-5 py-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wide">状態</th>
-                    <th className="px-5 py-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wide">グループ</th>
-                    <th className="px-5 py-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wide">次回発火</th>
-                    <th className="px-5 py-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wide">終了時刻</th>
-                    <th className="px-5 py-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wide">繰り返し</th>
-                    <th className="px-5 py-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wide">優先度</th>
-                    <th className="px-5 py-4" />
+                    <th className="px-8 py-6 text-left text-sm font-semibold text-gray-600 uppercase tracking-wide">状態</th>
+                    <th className="px-8 py-6 text-left text-sm font-semibold text-gray-600 uppercase tracking-wide">グループ</th>
+                    <th className="px-8 py-6 text-left text-sm font-semibold text-gray-600 uppercase tracking-wide">次回発火</th>
+                    <th className="px-8 py-6 text-left text-sm font-semibold text-gray-600 uppercase tracking-wide">終了時刻</th>
+                    <th className="px-8 py-6 text-left text-sm font-semibold text-gray-600 uppercase tracking-wide">繰り返し</th>
+                    <th className="px-8 py-6 text-left text-sm font-semibold text-gray-600 uppercase tracking-wide">優先度</th>
+                    <th className="px-8 py-6" />
                   </tr>
                 </thead>
                 <tbody>
@@ -848,15 +848,15 @@ export default function SchedulesPage() {
                         key={s.id}
                         className={`border-b border-gray-100 last:border-0 hover:bg-gray-50 transition-colors ${!s.active ? "opacity-50" : ""}`}
                       >
-                        <td className="px-5 py-4">
+                        <td className="px-8 py-6">
                           <span className={`inline-block px-3 py-1.5 rounded-full text-sm font-semibold ${
                             s.active ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"
                           }`}>
                             {s.active ? "有効" : "無効"}
                           </span>
                         </td>
-                        <td className="px-5 py-4 text-base font-medium text-gray-800">{s.group.name}</td>
-                        <td className="px-5 py-4">
+                        <td className="px-8 py-6 text-base font-medium text-gray-800">{s.group.name}</td>
+                        <td className="px-8 py-6">
                           {s.active ? (
                             <div>
                               <div className="text-base text-gray-700">{new Date(s.startTime).toLocaleString("ja-JP")}</div>
@@ -866,30 +866,30 @@ export default function SchedulesPage() {
                             <span className="text-base text-gray-700">{new Date(s.startTime).toLocaleString("ja-JP")}</span>
                           )}
                         </td>
-                        <td className="px-5 py-4 text-base text-gray-600">
+                        <td className="px-8 py-6 text-base text-gray-600">
                           {s.endTime
                             ? new Date(s.endTime).toLocaleString("ja-JP")
                             : <span className="text-gray-300">—</span>}
                         </td>
-                        <td className="px-5 py-4 text-base text-gray-600">
+                        <td className="px-8 py-6 text-base text-gray-600">
                           {repeatLabels[s.repeat] ?? s.repeat}
                         </td>
-                        <td className="px-5 py-4">
+                        <td className="px-8 py-6">
                           <span className={`inline-block px-3 py-1.5 rounded-full text-sm font-semibold ${badge.cls}`}>
                             {badge.label}
                           </span>
                         </td>
-                        <td className="px-5 py-4">
+                        <td className="px-8 py-6">
                           <div className="flex gap-2 justify-end">
                             <button
                               onClick={() => handleToggle(s)}
-                              className="px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition-colors border border-gray-300"
+                              className="btn-secondary"
                             >
                               {s.active ? "無効化" : "有効化"}
                             </button>
                             <button
                               onClick={() => handleDelete(s.id)}
-                              className="px-4 py-2 bg-red-100 text-red-700 text-sm font-medium rounded-lg hover:bg-red-200 transition-colors border border-red-200"
+                              className="btn-danger"
                             >
                               削除
                             </button>

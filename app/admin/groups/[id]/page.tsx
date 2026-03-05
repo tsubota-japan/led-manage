@@ -132,7 +132,7 @@ function SortableItem({
 
       <button
         onClick={() => onRemove(gf.id)}
-        className="px-4 py-2 bg-red-100 text-red-700 text-sm font-medium rounded-lg hover:bg-red-200 transition-colors border border-red-200 shrink-0"
+        className="px-5 py-3 bg-red-100 text-red-700 text-sm font-medium rounded-lg hover:bg-red-200 transition-colors border border-red-200 shrink-0"
       >
         削除
       </button>
@@ -298,7 +298,7 @@ export default function GroupEditorPage() {
       <div className="flex items-center gap-4 mb-8">
         <button
           onClick={() => router.push("/admin/groups")}
-          className="px-4 py-2 bg-gray-100 text-gray-700 text-base font-medium rounded-lg hover:bg-gray-200 transition-colors border border-gray-300"
+          className="px-5 py-3 bg-gray-100 text-gray-700 text-base font-medium rounded-lg hover:bg-gray-200 transition-colors border border-gray-300"
         >
           ← 戻る
         </button>

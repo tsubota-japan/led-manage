@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import styles from "./layout.module.css";
 
 const navItems = [
   { href: "/admin", label: "ダッシュボード", exact: true },
@@ -19,38 +20,49 @@ export default function AdminLayout({
   const pathname = usePathname();
 
   return (
-    <div className="flex min-h-screen bg-gray-100">
-      {/* Sidebar */}
-      <aside className="w-64 bg-gray-900 text-white flex flex-col shrink-0">
-        <div className="px-6 py-6 border-b border-gray-700">
-          <h1 className="text-xl font-bold tracking-wide">LED Manager</h1>
-        </div>
-        <nav className="flex-1 py-3">
-          {navItems.map((item) => {
-            const active = item.exact
-              ? pathname === item.href
-              : pathname.startsWith(item.href);
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`flex items-center px-6 py-4 text-base font-medium transition-colors ${
-                  active
-                    ? "bg-blue-600 text-white"
-                    : "text-gray-300 hover:bg-gray-800 hover:text-white"
-                }`}
-              >
-                {item.label}
-              </Link>
-            );
-          })}
-        </nav>
-      </aside>
+    <div className={styles.shell}>
+      <div className={styles.window}>
 
-      {/* Main content */}
-      <main className="flex-1 overflow-auto">
-        <div className="p-10">{children}</div>
-      </main>
+        {/* Sidebar */}
+        <aside className={styles.sidebar}>
+          <div className={styles.sidebarLogo}>
+            <div className="w-8 h-8 rounded-xl bg-blue-500 flex items-center justify-center shrink-0">
+              <svg width="16" height="16" viewBox="0 0 14 14" fill="none">
+                <rect x="1" y="1" width="5" height="5" rx="1" fill="white" />
+                <rect x="8" y="1" width="5" height="5" rx="1" fill="white" fillOpacity="0.5" />
+                <rect x="1" y="8" width="5" height="5" rx="1" fill="white" fillOpacity="0.5" />
+                <rect x="8" y="8" width="5" height="5" rx="1" fill="white" />
+              </svg>
+            </div>
+            <span className="text-sm font-semibold text-white tracking-wide">LED Manager</span>
+          </div>
+
+          <div className="h-px mx-5 bg-zinc-800" />
+
+          <nav className={styles.sidebarNav}>
+            {navItems.map((item) => {
+              const active = item.exact
+                ? pathname === item.href
+                : pathname.startsWith(item.href);
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`${styles.navItem} ${active ? styles.navItemActive : ""}`}
+                >
+                  {item.label}
+                </Link>
+              );
+            })}
+          </nav>
+        </aside>
+
+        {/* Main content */}
+        <main className={styles.main}>
+          <div className={styles.content}>{children}</div>
+        </main>
+
+      </div>
     </div>
   );
 }

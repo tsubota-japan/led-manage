@@ -145,7 +145,7 @@ led-manage/
 #### 優先度の仕組み
 - `currentPriority` は各クライアントが保持。`priority >= currentPriority` を満たすブロードキャストのみ受け付ける
 - **同一 tick 内**では優先度が高いものが先に発火し、低いものをブロックする（意図的な割り込み制御）
-- **tick をまたぐ際**はスケジューラーが `resetたいむAllClientPriorities()` を呼んでリセットするため、前 tick の高優先度が次 tick のスケジュールを阻害しない
+- **tick をまたぐ際**はスケジューラーが `resetAllClientPriorities()` を呼んでリセットするため、前 tick の高優先度が次 tick のスケジュールを阻害しない
 - 手動リセット: `DELETE /api/broadcasts` で即時リセット可能
 
 ### Scheduler (`lib/scheduler.ts` + `instrumentation.ts`)
@@ -164,7 +164,7 @@ led-manage/
 ### DisplayPlayer (`components/display/DisplayPlayer.tsx`)
 - SSE 接続（`/api/sse/[code]`）で `play` イベント受信
 - `groupId` を受け取り → `/api/groups/[id]` でファイル一覧を fetch
-- 画像: `setTimeout(advance, duration * 1000)`（duration null 時は 15 秒）
+- 画像: `setTimeout(advance, duration * 1000)`（duration null 時は 5 秒）
 - 動画: `<video onEnded={advance} />`
 - 末尾まで到達で index=0 に戻り永久ループ
 
@@ -232,7 +232,7 @@ npx prisma generate        # クライアント再生成
 | 無効化/戻る/キャンセル | `px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg border border-gray-300 hover:bg-gray-200` |
 
 ### テキストサイズ
-- ページタイトル: `text-3xl font-bold`
+- ページタイトル: `text-2xl font-semibold text-gray-900`
 - セクション見出し: `text-lg font-semibold`
 - テーブル本文: `text-base`
 - テーブルヘッダー: `text-sm font-semibold uppercase tracking-wide`
@@ -240,12 +240,26 @@ npx prisma generate        # クライアント再生成
 - 入力欄: `px-4 py-3 text-base`
 
 ### サイドバー
-- 幅: `w-64`
-- ナビアイテム: `py-4 text-base font-medium`
+- 幅: `w-56`（224px）
+- 背景: `bg-zinc-950`
+- ナビアイテム: `px-3 py-2.5 text-sm font-medium rounded-lg`
+- アクティブ: `bg-white/10 text-white`
+- 非アクティブ: `text-zinc-500 hover:bg-white/5 hover:text-zinc-200`
+
+### レイアウト
+- メインコンテンツ背景: `bg-slate-50`
+- コンテンツパディング: `p-8`
+- カード外枠: `rounded-xl`（`rounded-lg` より大きく）
 
 ### テーブル
 - 行の余白: `px-5 py-4`（コンパクトな `px-4 py-2` は使わない）
-- カード外枠: `rounded-xl`（`rounded-lg` より大きく）
+
+### 空状態
+- `bg-white rounded-xl p-12 text-center border border-gray-200`（`border-2 border-dashed` は使わない）
+
+### フォント
+- `globals.css` でシステムフォントを設定: `-apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif`
+- `-webkit-font-smoothing: antialiased` を必ず設定
 
 ---
 

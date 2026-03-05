@@ -25,10 +25,10 @@ export default function AdminDashboard() {
   return (
     <div>
       <div className="flex items-center justify-between mb-8">
-        <h2 className="text-3xl font-bold text-gray-800">ダッシュボード</h2>
+        <h2 className="text-2xl font-semibold text-gray-900">ダッシュボード</h2>
         <Link
           href="/admin/displays"
-          className="px-5 py-3 bg-blue-600 text-white text-base font-medium rounded-lg hover:bg-blue-700 transition-colors"
+          className="btn-primary"
         >
           ディスプレイ管理
         </Link>
@@ -37,11 +37,11 @@ export default function AdminDashboard() {
       {loading ? (
         <p className="text-gray-500 text-base">読み込み中...</p>
       ) : displays.length === 0 ? (
-        <div className="bg-white rounded-xl p-12 text-center border-2 border-dashed border-gray-300">
+        <div className="bg-white rounded-xl p-16 text-center border border-gray-200">
           <p className="text-gray-500 text-lg mb-4">ディスプレイが登録されていません</p>
           <Link
             href="/admin/displays"
-            className="inline-block px-5 py-3 bg-blue-600 text-white text-base font-medium rounded-lg hover:bg-blue-700 transition-colors"
+            className="btn-primary"
           >
             ディスプレイを追加する →
           </Link>
@@ -51,9 +51,9 @@ export default function AdminDashboard() {
           {displays.map((d) => (
             <div
               key={d.id}
-              className="bg-white rounded-xl shadow-sm border border-gray-200 p-6"
+              className="bg-white rounded-xl shadow-sm border border-gray-200 p-8"
             >
-              <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center justify-between mb-5">
                 <h3 className="text-lg font-semibold text-gray-800">{d.name}</h3>
                 <span
                   className={`flex items-center gap-1.5 text-sm font-medium px-3 py-1 rounded-full ${
@@ -70,14 +70,14 @@ export default function AdminDashboard() {
                   {d.online ? "オンライン" : "オフライン"}
                 </span>
               </div>
-              <p className="text-sm text-gray-400 font-mono mb-4">
+              <p className="text-sm text-gray-400 font-mono mb-5">
                 コード: {d.code}
               </p>
               <a
                 href={`/display/${d.code}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-block px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition-colors"
+                className="inline-block px-5 py-3 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition-colors"
               >
                 表示画面を開く →
               </a>

@@ -270,13 +270,9 @@ export default function FilesPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-8">
-        <h2 className="text-3xl font-bold text-gray-800">ファイル管理</h2>
+        <h2 className="text-2xl font-semibold text-gray-900">ファイル管理</h2>
         <label
-          className={`px-5 py-3 text-base font-medium rounded-lg cursor-pointer transition-colors ${
-            uploading
-              ? "bg-gray-400 text-white cursor-not-allowed"
-              : "bg-blue-600 text-white hover:bg-blue-700"
-          }`}
+          className="btn-primary cursor-pointer"
         >
           ＋ ファイルを追加
           <input
@@ -293,7 +289,7 @@ export default function FilesPage() {
 
       {/* アップロードエラー */}
       {uploadErrors.length > 0 && (
-        <div className="mb-4 px-5 py-4 bg-red-50 border border-red-200 rounded-xl flex items-start gap-3">
+        <div className="mb-4 px-8 py-6 bg-red-50 border border-red-200 rounded-xl flex items-start gap-3">
           <span className="text-red-500 text-xl shrink-0">⚠</span>
           <div className="flex-1">
             <p className="text-sm font-semibold text-red-700 mb-1">アップロードに失敗したファイルがあります</p>
@@ -312,7 +308,7 @@ export default function FilesPage() {
 
       {/* サイズエラー */}
       {sizeError && (
-        <div className="mb-4 px-5 py-4 bg-red-50 border border-red-200 rounded-xl flex items-start gap-3">
+        <div className="mb-4 px-8 py-6 bg-red-50 border border-red-200 rounded-xl flex items-start gap-3">
           <span className="text-red-500 text-xl shrink-0">⚠</span>
           <div className="flex-1">
             {sizeError.split("\n").map((line, i) => (
@@ -337,8 +333,8 @@ export default function FilesPage() {
         onClick={() => !uploading && staged.length === 0 && inputRef.current?.click()}
         className={`mb-6 rounded-xl border-2 border-dashed transition-colors ${
           isDragOver
-            ? "border-blue-500 bg-blue-50"
-            : "border-gray-300 bg-white hover:border-blue-400 hover:bg-gray-50"
+            ? "border-blue-400 bg-blue-50"
+            : "border-gray-200 bg-white hover:border-blue-300 hover:bg-gray-50/50"
         } ${uploading || staged.length > 0 ? "cursor-default" : "cursor-pointer"}`}
       >
         {uploading && progress ? (
@@ -420,7 +416,7 @@ export default function FilesPage() {
                         type="text"
                         value={s.basename}
                         onChange={(e) => updateBasename(i, e.target.value)}
-                        className="flex-1 px-3 py-2 text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 min-w-0"
+                        className="form-input flex-1 min-w-0"
                         placeholder={s.basename}
                       />
                       {s.ext && (
@@ -455,13 +451,13 @@ export default function FilesPage() {
             <div className="flex gap-3">
               <button
                 onClick={handleUpload}
-                className="px-6 py-3 bg-blue-600 text-white text-base font-medium rounded-lg hover:bg-blue-700 transition-colors"
+                className="btn-primary"
               >
                 アップロード開始（{staged.length}件）
               </button>
               <button
                 onClick={cancelStaging}
-                className="px-6 py-3 bg-gray-100 text-gray-700 text-base font-medium rounded-lg hover:bg-gray-200 transition-colors border border-gray-300"
+                className="btn-secondary"
               >
                 キャンセル
               </button>
@@ -472,32 +468,32 @@ export default function FilesPage() {
 
       {/* ファイル一覧 */}
       {files.length === 0 ? (
-        <div className="bg-white rounded-xl p-10 text-center border border-gray-200">
+        <div className="bg-white rounded-xl p-16 text-center border border-gray-200">
           <p className="text-gray-400 text-base">
             アップロードされたファイルがありません
           </p>
         </div>
       ) : (
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-          <table className="w-full">
+          <table className="w-full admin-table">
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
-                <th className="px-5 py-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wide">
+                <th className="px-8 py-6 text-left text-sm font-semibold text-gray-600 uppercase tracking-wide">
                   プレビュー
                 </th>
-                <th className="px-5 py-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wide">
+                <th className="px-8 py-6 text-left text-sm font-semibold text-gray-600 uppercase tracking-wide">
                   ファイル名
                 </th>
-                <th className="px-5 py-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wide">
+                <th className="px-8 py-6 text-left text-sm font-semibold text-gray-600 uppercase tracking-wide">
                   種類
                 </th>
-                <th className="px-5 py-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wide">
+                <th className="px-8 py-6 text-left text-sm font-semibold text-gray-600 uppercase tracking-wide">
                   サイズ
                 </th>
-                <th className="px-5 py-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wide">
+                <th className="px-8 py-6 text-left text-sm font-semibold text-gray-600 uppercase tracking-wide">
                   登録日
                 </th>
-                <th className="px-5 py-4" />
+                <th className="px-8 py-6" />
               </tr>
             </thead>
             <tbody>
@@ -506,7 +502,7 @@ export default function FilesPage() {
                   key={f.id}
                   className="border-b border-gray-100 last:border-0 hover:bg-gray-50 transition-colors"
                 >
-                  <td className="px-5 py-4">
+                  <td className="px-8 py-6">
                     <button
                       onClick={() => setPreviewing(f)}
                       className="block focus:outline-none"
@@ -526,7 +522,7 @@ export default function FilesPage() {
                       )}
                     </button>
                   </td>
-                  <td className="px-5 py-4">
+                  <td className="px-8 py-6">
                     {renaming?.id === f.id ? (
                       <div className="flex items-center gap-1">
                         <input
@@ -540,7 +536,7 @@ export default function FilesPage() {
                             if (e.key === "Enter") handleRename();
                             if (e.key === "Escape") setRenaming(null);
                           }}
-                          className="flex-1 px-3 py-1.5 text-base border border-blue-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 min-w-0"
+                          className="form-input flex-1 min-w-0"
                         />
                         {renaming.ext && (
                           <span className="text-base text-gray-500 font-mono shrink-0">
@@ -557,28 +553,28 @@ export default function FilesPage() {
                       </button>
                     )}
                   </td>
-                  <td className="px-5 py-4 text-sm text-gray-500">
+                  <td className="px-8 py-6 text-sm text-gray-500">
                     {f.mimeType}
                   </td>
-                  <td className="px-5 py-4 text-base text-gray-600">
+                  <td className="px-8 py-6 text-base text-gray-600">
                     {formatBytes(f.size)}
                   </td>
-                  <td className="px-5 py-4 text-base text-gray-600">
+                  <td className="px-8 py-6 text-base text-gray-600">
                     {new Date(f.createdAt).toLocaleDateString("ja-JP")}
                   </td>
-                  <td className="px-5 py-4 text-right">
+                  <td className="px-8 py-6 text-right">
                     <div className="flex gap-2 justify-end">
                       {renaming?.id === f.id ? (
                         <>
                           <button
                             onClick={handleRename}
-                            className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
+                            className="btn-primary"
                           >
                             保存
                           </button>
                           <button
                             onClick={() => setRenaming(null)}
-                            className="px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition-colors border border-gray-300"
+                            className="btn-secondary"
                           >
                             キャンセル
                           </button>
@@ -587,13 +583,13 @@ export default function FilesPage() {
                         <>
                           <button
                             onClick={() => startRename(f)}
-                            className="px-4 py-2 bg-blue-100 text-blue-700 text-sm font-medium rounded-lg hover:bg-blue-200 transition-colors border border-blue-200"
+                            className="btn-edit"
                           >
                             リネーム
                           </button>
                           <button
                             onClick={() => handleDelete(f.id, f.name)}
-                            className="px-4 py-2 bg-red-100 text-red-700 text-sm font-medium rounded-lg hover:bg-red-200 transition-colors border border-red-200"
+                            className="btn-danger"
                           >
                             削除
                           </button>
