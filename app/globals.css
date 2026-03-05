@@ -18,6 +18,31 @@ body {
   padding: 20px 32px;
 }
 
+/* Responsive table wrapper */
+.table-wrap {
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  overflow-x: auto;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+.table-wrap table {
+  width: 100%;
+  min-width: 600px;
+}
+
+/* Schedule form grid */
+.schedule-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+@media (max-width: 900px) {
+  .schedule-form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* Section spacing — guaranteed margins */
 .admin-main h2.page-title {
   margin-bottom: 48px;

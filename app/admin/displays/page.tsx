@@ -81,7 +81,7 @@ export default function DisplaysPage() {
           <p className="text-gray-500 text-lg">ディスプレイが登録されていません</p>
         </div>
       ) : (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <div className="table-wrap">
           <table className="w-full admin-table">
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>

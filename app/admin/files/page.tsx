@@ -474,7 +474,7 @@ export default function FilesPage() {
           </p>
         </div>
       ) : (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <div className="table-wrap">
           <table className="w-full admin-table">
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>

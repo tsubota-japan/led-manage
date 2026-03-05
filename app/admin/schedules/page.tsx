@@ -739,7 +739,7 @@ export default function SchedulesPage() {
       {/* New schedule form */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200" style={{ padding: "36px 40px", marginBottom: "36px" }}>
             <h3 className="text-lg font-semibold text-gray-700 mb-6">新規スケジュール</h3>
-            <form onSubmit={handleCreate} className="grid grid-cols-2 gap-5">
+            <form onSubmit={handleCreate} className="schedule-form-grid">
               <div>
                 <label className="block text-sm font-semibold text-gray-600 mb-2">グループ</label>
                 <select
@@ -827,7 +827,7 @@ export default function SchedulesPage() {
               <p className="text-gray-500 text-lg">スケジュールがありません</p>
             </div>
           ) : (
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+            <div className="table-wrap">
               <table className="w-full admin-table">
                 <thead className="bg-gray-50 border-b border-gray-200">
                   <tr>
