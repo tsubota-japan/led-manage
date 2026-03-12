@@ -333,19 +333,19 @@ export default function FilesPage() {
         onClick={() => !uploading && staged.length === 0 && inputRef.current?.click()}
         className={`mb-6 rounded-xl border-2 border-dashed transition-colors ${
           isDragOver
-            ? "border-blue-400 bg-blue-50"
-            : "border-gray-200 bg-white hover:border-blue-300 hover:bg-gray-50/50"
+            ? "border-red-400 bg-red-50"
+            : "border-gray-200 bg-white hover:border-red-300 hover:bg-gray-50/50"
         } ${uploading || staged.length > 0 ? "cursor-default" : "cursor-pointer"}`}
       >
         {uploading && progress ? (
           <div className="px-6 py-8 text-center">
             <div className="text-4xl mb-3">⏳</div>
-            <p className="text-base font-medium text-blue-700">
+            <p className="text-base font-medium text-red-700">
               アップロード中: {progress.current} / {progress.total}
             </p>
             <div className="mt-3 mx-auto w-64 bg-gray-200 rounded-full h-2">
               <div
-                className="bg-blue-500 h-2 rounded-full transition-all"
+                className="bg-red-600 h-2 rounded-full transition-all"
                 style={{ width: `${(progress.current / progress.total) * 100}%` }}
               />
             </div>
@@ -353,7 +353,7 @@ export default function FilesPage() {
         ) : isDragOver ? (
           <div className="px-6 py-10 text-center pointer-events-none">
             <div className="text-5xl mb-3">📂</div>
-            <p className="text-lg font-semibold text-blue-600">
+            <p className="text-lg font-semibold text-red-600">
               ここにドロップ
             </p>
           </div>
@@ -374,7 +374,7 @@ export default function FilesPage() {
               <p className="text-base font-semibold text-gray-700">
                 ファイル名を確認・編集してからアップロード
               </p>
-              <label className="text-sm text-blue-600 hover:underline cursor-pointer font-medium">
+              <label className="text-sm text-red-700 hover:underline cursor-pointer font-medium">
                 ＋ さらに追加
                 <input
                   type="file"
@@ -547,7 +547,7 @@ export default function FilesPage() {
                     ) : (
                       <button
                         onClick={() => setPreviewing(f)}
-                        className="text-base text-gray-800 font-medium hover:text-blue-600 transition-colors text-left"
+                        className="text-base text-gray-800 font-medium hover:text-red-700 transition-colors text-left"
                       >
                         {f.name}
                       </button>

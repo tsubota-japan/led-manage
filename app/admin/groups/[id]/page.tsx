@@ -71,7 +71,7 @@ function SortableItem({
       style={{ ...style, padding: "16px 20px", marginBottom: "10px" }}
       className={`flex items-center gap-4 border rounded-xl shadow-sm transition-colors ${
         isSelected
-          ? "bg-blue-50 border-blue-300 ring-1 ring-blue-200"
+          ? "bg-red-50 border-red-300 ring-1 ring-red-200"
           : "bg-white border-gray-200"
       }`}
     >
@@ -80,7 +80,7 @@ function SortableItem({
         checked={isSelected}
         onChange={() => onToggleSelect(gf.id)}
         onClick={(e) => e.stopPropagation()}
-        className="w-4 h-4 rounded border-gray-300 text-blue-600 cursor-pointer shrink-0 accent-blue-600"
+        className="w-4 h-4 rounded border-gray-300 text-red-700 cursor-pointer shrink-0 accent-red-700"
       />
 
       <button
@@ -339,7 +339,7 @@ export default function GroupEditorPage() {
                     key={f.id}
                     onClick={() => handleAddFile(f.id)}
                     title={f.name}
-                    className="group relative flex flex-col rounded-lg overflow-hidden border-2 border-transparent hover:border-blue-500 hover:shadow-md transition-all bg-white focus:outline-none focus:border-blue-500"
+                    className="group relative flex flex-col rounded-lg overflow-hidden border-2 border-transparent hover:border-red-500 hover:shadow-md transition-all bg-white focus:outline-none focus:border-red-500"
                   >
                     {f.mimeType.startsWith("image/") ? (
                       // eslint-disable-next-line @next/next/no-img-element
@@ -357,8 +357,8 @@ export default function GroupEditorPage() {
                     <div className="px-1.5 py-1.5 w-full">
                       <p className="text-xs text-gray-700 truncate leading-tight">{f.name}</p>
                     </div>
-                    <div className="absolute inset-0 bg-blue-600/0 group-hover:bg-blue-600/10 transition-colors" />
-                    <div className="absolute top-1 right-1 w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow">
+                    <div className="absolute inset-0 bg-red-700/0 group-hover:bg-red-700/10 transition-colors" />
+                    <div className="absolute top-1 right-1 w-5 h-5 bg-red-700 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow">
                       <span className="text-white text-xs font-bold leading-none">＋</span>
                     </div>
                   </button>
@@ -389,7 +389,7 @@ export default function GroupEditorPage() {
           {items.length > 0 && (
             <div className="flex items-center gap-2">
               {selectedCount > 0 && (
-                <span className="text-sm font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded-lg border border-blue-200">
+                <span className="text-sm font-medium text-red-700 bg-red-50 px-2 py-1 rounded-lg border border-red-200">
                   {selectedCount}個選択中
                 </span>
               )}

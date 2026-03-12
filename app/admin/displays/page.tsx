@@ -137,7 +137,7 @@ export default function DisplaysPage() {
                         href={`/display/${d.code}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-blue-600 hover:underline text-sm font-medium"
+                        className="text-red-700 hover:underline text-sm font-medium"
                       >
                         /display/{d.code}
                       </a>

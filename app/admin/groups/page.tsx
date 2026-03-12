@@ -98,7 +98,7 @@ export default function GroupsPage() {
                   <td className="px-8 py-6 text-base font-semibold text-gray-800">
                     <Link
                       href={`/admin/groups/${g.id}`}
-                      className="hover:text-blue-600 hover:underline"
+                      className="hover:text-red-700 hover:underline"
                     >
                       {g.name}
                     </Link>

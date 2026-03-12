@@ -63,7 +63,7 @@ body {
   font-size: 15px;
   font-weight: 600;
   border-radius: 10px;
-  background: #2563eb;
+  background: #b91c1c;
   color: #fff;
   border: none;
   cursor: pointer;
@@ -72,7 +72,7 @@ body {
   text-decoration: none;
   line-height: 1.4;
 }
-.btn-primary:hover:not(:disabled) { background: #1d4ed8; }
+.btn-primary:hover:not(:disabled) { background: #991b1b; }
 .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .btn-success {
@@ -167,7 +167,7 @@ body {
 .form-input:focus,
 .form-select:focus {
   outline: none;
-  border-color: #60a5fa;
-  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
+  border-color: #f87171;
+  box-shadow: 0 0 0 3px rgba(185, 28, 28, 0.12);
 }
 

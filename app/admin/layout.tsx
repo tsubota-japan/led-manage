@@ -26,7 +26,7 @@ export default function AdminLayout({
         {/* Sidebar */}
         <aside className={styles.sidebar}>
           <div className={styles.sidebarLogo}>
-            <div className="w-8 h-8 rounded-xl bg-blue-500 flex items-center justify-center shrink-0">
+            <div className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0" style={{ background: "#b91c1c" }}>
               <svg width="16" height="16" viewBox="0 0 14 14" fill="none">
                 <rect x="1" y="1" width="5" height="5" rx="1" fill="white" />
                 <rect x="8" y="1" width="5" height="5" rx="1" fill="white" fillOpacity="0.5" />

@@ -59,7 +59,7 @@ const repeatLabels: Record<string, string> = {
 function priorityBadge(p: number): { cls: string; label: string } {
   if (p >= 10) return { cls: "bg-red-100 text-red-700 border border-red-200",    label: `${p} 緊急` };
   if (p >= 5)  return { cls: "bg-orange-100 text-orange-700 border border-orange-200", label: `${p} 高` };
-  if (p >= 1)  return { cls: "bg-blue-100 text-blue-700 border border-blue-200",   label: `${p} 中` };
+  if (p >= 1)  return { cls: "bg-red-50 text-red-700 border border-red-200",   label: `${p} 中` };
   return             { cls: "bg-gray-100 text-gray-600 border border-gray-200",    label: `${p} 通常` };
 }
 
@@ -447,7 +447,7 @@ export default function SchedulesPage() {
       <h2 className="text-2xl font-semibold text-gray-900" style={{ marginBottom: "36px" }}>スケジュール管理</h2>
 
       {/* ── 即時配信 (always shown) ─────────────────────────────── */}
-      <div className="bg-white rounded-xl shadow-sm border border-blue-200" style={{ padding: "36px 40px", marginBottom: "36px" }}>
+      <div className="bg-white rounded-xl shadow-sm border border-red-200" style={{ padding: "36px 40px", marginBottom: "36px" }}>
         <div className="flex items-start justify-between mb-4">
           <h3 className="text-lg font-semibold text-gray-700">即時配信</h3>
           <span className="text-sm text-gray-500">
