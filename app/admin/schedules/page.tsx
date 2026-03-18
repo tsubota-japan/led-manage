@@ -65,7 +65,7 @@ function priorityBadge(p: number): { cls: string; label: string } {
 
 function relativeTime(dateStr: string): string {
   const diff = new Date(dateStr).getTime() - Date.now();
-  if (diff < 0) return "発火済み";
+  if (diff < 0) return "起動済み";
   const mins = Math.floor(diff / 60000);
   const hrs  = Math.floor(mins / 60);
   if (hrs >= 24) return `${Math.floor(hrs / 24)}日後`;
@@ -482,9 +482,9 @@ export default function SchedulesPage() {
               <span className="ml-1 font-normal text-xs text-gray-400">（0=通常 / 10=緊急）</span>
             </label>
             <input
-              type="number" min={0} max={100}
+              type="number" min={0} max={10}
               value={broadcast.priority}
-              onChange={e => setBroadcast({ ...broadcast, priority: parseInt(e.target.value) || 0 })}
+              onChange={e => setBroadcast({ ...broadcast, priority: Math.min(10, parseInt(e.target.value) || 0) })}
               className="form-input w-full"
             />
           </div>
@@ -801,9 +801,9 @@ export default function SchedulesPage() {
                   <span className="ml-2 text-xs font-normal text-gray-400">0=通常 / 5=高 / 10=緊急割り込み</span>
                 </label>
                 <input
-                  type="number" min={0} max={100}
+                  type="number" min={0} max={10}
                   value={form.priority}
-                  onChange={e => setForm({ ...form, priority: parseInt(e.target.value) || 0 })}
+                  onChange={e => setForm({ ...form, priority: Math.min(10, parseInt(e.target.value) || 0) })}
                   className="form-input w-full"
                 />
               </div>
@@ -827,17 +827,17 @@ export default function SchedulesPage() {
               <p className="text-gray-500 text-lg">スケジュールがありません</p>
             </div>
           ) : (
-            <div className="table-wrap">
-              <table className="w-full admin-table">
+            <div className="table-wrap overflow-x-auto">
+              <table className="admin-table" style={{ minWidth: 900 }}>
                 <thead className="bg-gray-50 border-b border-gray-200">
                   <tr>
-                    <th className="px-8 py-6 text-left text-sm font-semibold text-gray-600 uppercase tracking-wide">状態</th>
-                    <th className="px-8 py-6 text-left text-sm font-semibold text-gray-600 uppercase tracking-wide">グループ</th>
-                    <th className="px-8 py-6 text-left text-sm font-semibold text-gray-600 uppercase tracking-wide">次回発火</th>
-                    <th className="px-8 py-6 text-left text-sm font-semibold text-gray-600 uppercase tracking-wide">終了時刻</th>
-                    <th className="px-8 py-6 text-left text-sm font-semibold text-gray-600 uppercase tracking-wide">繰り返し</th>
-                    <th className="px-8 py-6 text-left text-sm font-semibold text-gray-600 uppercase tracking-wide">優先度</th>
-                    <th className="px-8 py-6" />
+                    <th className="px-6 py-5 text-left text-sm font-semibold text-gray-600 uppercase tracking-wide whitespace-nowrap">状態</th>
+                    <th className="px-6 py-5 text-left text-sm font-semibold text-gray-600 uppercase tracking-wide whitespace-nowrap">グループ</th>
+                    <th className="px-6 py-5 text-left text-sm font-semibold text-gray-600 uppercase tracking-wide whitespace-nowrap">次回起動</th>
+                    <th className="px-6 py-5 text-left text-sm font-semibold text-gray-600 uppercase tracking-wide whitespace-nowrap">終了時刻</th>
+                    <th className="px-6 py-5 text-left text-sm font-semibold text-gray-600 uppercase tracking-wide whitespace-nowrap">繰り返し</th>
+                    <th className="px-6 py-5 text-left text-sm font-semibold text-gray-600 uppercase tracking-wide whitespace-nowrap">優先度</th>
+                    <th className="px-6 py-5 bg-gray-50 sticky right-0" style={{ boxShadow: "-1px 0 0 #e5e7eb" }} />
                   </tr>
                 </thead>
                 <tbody>
@@ -848,38 +848,40 @@ export default function SchedulesPage() {
                         key={s.id}
                         className={`border-b border-gray-100 last:border-0 hover:bg-gray-50 transition-colors ${!s.active ? "opacity-50" : ""}`}
                       >
-                        <td className="px-8 py-6">
+                        <td className="px-6 py-5 whitespace-nowrap">
                           <span className={`inline-block px-3 py-1.5 rounded-full text-sm font-semibold ${
                             s.active ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"
                           }`}>
                             {s.active ? "有効" : "無効"}
                           </span>
                         </td>
-                        <td className="px-8 py-6 text-base font-medium text-gray-800">{s.group.name}</td>
-                        <td className="px-8 py-6">
+                        <td className="px-6 py-5" style={{ minWidth: 160, maxWidth: 200 }}>
+                          <span className="text-sm font-medium text-gray-800" style={{ display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{s.group.name}</span>
+                        </td>
+                        <td className="px-6 py-5 whitespace-nowrap">
                           {s.active ? (
                             <div>
-                              <div className="text-base text-gray-700">{new Date(s.startTime).toLocaleString("ja-JP")}</div>
+                              <div className="text-sm text-gray-700">{new Date(s.startTime).toLocaleString("ja-JP")}</div>
                               <div className="text-xs text-gray-400 mt-0.5">{relativeTime(s.startTime)}</div>
                             </div>
                           ) : (
-                            <span className="text-base text-gray-700">{new Date(s.startTime).toLocaleString("ja-JP")}</span>
+                            <span className="text-sm text-gray-700">{new Date(s.startTime).toLocaleString("ja-JP")}</span>
                           )}
                         </td>
-                        <td className="px-8 py-6 text-base text-gray-600">
+                        <td className="px-6 py-5 text-sm text-gray-600 whitespace-nowrap">
                           {s.endTime
                             ? new Date(s.endTime).toLocaleString("ja-JP")
                             : <span className="text-gray-300">—</span>}
                         </td>
-                        <td className="px-8 py-6 text-base text-gray-600">
+                        <td className="px-6 py-5 text-sm text-gray-600 whitespace-nowrap">
                           {repeatLabels[s.repeat] ?? s.repeat}
                         </td>
-                        <td className="px-8 py-6">
+                        <td className="px-6 py-5 whitespace-nowrap">
                           <span className={`inline-block px-3 py-1.5 rounded-full text-sm font-semibold ${badge.cls}`}>
                             {badge.label}
                           </span>
                         </td>
-                        <td className="px-8 py-6">
+                        <td className="px-6 py-5 bg-white sticky right-0" style={{ boxShadow: "-1px 0 0 #e5e7eb" }}>
                           <div className="flex gap-2 justify-end">
                             <button
                               onClick={() => handleToggle(s)}

@@ -115,9 +115,9 @@ led-manage/
 |---|---|---|
 | id | String (cuid) | PK |
 | groupId | String | FK → Group (Cascade) |
-| startTime | DateTime | 発火時刻 |
+| startTime | DateTime | 配信開始時刻 |
 | endTime | DateTime? | 終了時刻（null = 無制限、繰り返し時はこの時刻以降停止） |
-| repeat | String | `none` / `daily` / `weekly` |
+| repeat | String | `none` / `daily` / `weekly` / `always` |
 | priority | Int | 優先度（高いほど割り込み優先、デフォルト0） |
 | active | Boolean | 有効/無効フラグ |
 
@@ -144,28 +144,30 @@ led-manage/
 
 #### 優先度の仕組み
 - `currentPriority` は各クライアントが保持。`priority >= currentPriority` を満たすブロードキャストのみ受け付ける
-- **同一 tick 内**では優先度が高いものが先に発火し、低いものをブロックする（意図的な割り込み制御）
+- **同一 tick 内**では優先度が高いものが先に実行され、低いものをブロックする（意図的な割り込み制御）
 - **tick をまたぐ際**はスケジューラーが `resetAllClientPriorities()` を呼んでリセットするため、前 tick の高優先度が次 tick のスケジュールを阻害しない
 - 手動リセット: `DELETE /api/broadcasts` で即時リセット可能
 
 ### Scheduler (`lib/scheduler.ts` + `instrumentation.ts`)
 - `instrumentation.ts` の `register()` 関数（Node.js ランタイムのみ）で初期化
 - **起動時キャッチアップ** (`catchUpOverdueSchedules`): サーバー停止中に通過した `active=true` スケジュールを起動直後に処理する
-  - `repeat=none`: 即時発火 → `active=false`
-  - `repeat=daily/weekly`: `startTime` を次回以降に進めた上で発火
-  - `endTime` を過ぎているものは発火せず `active=false`
+  - `repeat=none`: 即時配信 → `active=false`
+  - `repeat=daily/weekly`: `startTime` を次回以降に進めた上で配信
+  - `repeat=always`: 常時配信。`startTime` を変更せず `active=false` にもしない（再起動のたびに再配信させるため）
+  - `endTime` を過ぎているものは配信せず `active=false`
   - 低優先度から順に処理し、`__sseGlobalLast` に高優先度が残るようにする
-- **毎分 cron**: tick 開始時に `resetAllClientPriorities()` を呼び、70 秒ウィンドウ内のスケジュールを発火
+- **毎分 cron**: tick 開始時に `resetAllClientPriorities()` を呼び、70 秒ウィンドウ内のスケジュールを実行
+  - `repeat=always` はスキップ（起動時キャッチアップ専用）
   - `repeat=daily` → `startTime` を +1日に更新
   - `repeat=weekly` → `startTime` を +7日に更新
   - `repeat=none` → `active=false` に更新
   - 次回 `startTime` が `endTime` を超える場合は `active=false`
 
 ### DisplayPlayer (`components/display/DisplayPlayer.tsx`)
-- SSE 接続（`/api/sse/[code]`）で `play` イベント受信
+- SSE 接続（`/api/sse/[code]`）で `message` イベント受信
 - `groupId` を受け取り → `/api/groups/[id]` でファイル一覧を fetch
-- 画像: `setTimeout(advance, duration * 1000)`（duration null 時は 5 秒）
-- 動画: `<video onEnded={advance} />`
+- 画像: `setTimeout(advance, duration * 1000)`（duration null 時は 15 秒）
+- 動画: `<video onEnded={advance} onError={advance} />`
 - 末尾まで到達で index=0 に戻り永久ループ
 
 ### ファイルアップロード (`app/api/files/route.ts`)
@@ -239,23 +241,25 @@ npx prisma generate        # クライアント再生成
 - フォームラベル: `text-sm font-semibold`
 - 入力欄: `px-4 py-3 text-base`
 
-### サイドバー
-- 幅: `w-56`（224px）
-- 背景: `bg-zinc-950`
-- ナビアイテム: `px-3 py-2.5 text-sm font-medium rounded-lg`
-- アクティブ: `bg-white/10 text-white`
-- 非アクティブ: `text-zinc-500 hover:bg-white/5 hover:text-zinc-200`
+### サイドバー（`app/admin/layout.module.css`）
+- レイアウトは Tailwind ではなく CSS Module で管理（Tailwind v4 のレイアウト系クラスが期待通り動かない場合があるため）
+- 外側背景: `#18181b`、外側padding: 48px
+- アプリウィンドウ: `border-radius: 24px`、強い box-shadow
+- サイドバー幅: 180px、背景: `#09090b`
+- ナビアイテム: padding 16px、font-size 15px、color `#a1a1aa`、border-radius 12px
+- アクティブ: `background-color: rgba(185, 28, 28, 0.22)`、左ボーダー `3px solid #ef4444`、color white
+- ホバー: `background-color: rgba(255, 255, 255, 0.06)`、color white
 
-### レイアウト
-- メインコンテンツ背景: `bg-slate-50`
-- コンテンツパディング: `p-8`
+### レイアウト（`app/admin/layout.module.css`）
+- メインコンテンツ背景: `#f8fafc`
+- コンテンツパディング: 60px 72px（`.content`）
 - カード外枠: `rounded-xl`（`rounded-lg` より大きく）
 
 ### テーブル
-- 行の余白: `px-5 py-4`（コンパクトな `px-4 py-2` は使わない）
+- 行の余白: `px-6 py-5`（コンパクトな `px-4 py-2` は使わない）
 
 ### 空状態
-- `bg-white rounded-xl p-12 text-center border border-gray-200`（`border-2 border-dashed` は使わない）
+- `bg-white rounded-xl p-16 text-center border border-gray-200`（`border-2 border-dashed` は使わない）
 
 ### フォント
 - `globals.css` でシステムフォントを設定: `-apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif`
@@ -279,6 +283,6 @@ npx prisma generate        # クライアント再生成
 
 | 症状 | 原因 | 対処 |
 |---|---|---|
-| スケジュール時刻になっても発火しない | サーバー停止中に時刻を通過した | 再起動で起動時キャッチアップが発火する |
+| スケジュール時刻になっても配信されない | サーバー停止中に時刻を通過した | 再起動で起動時キャッチアップが実行される |
 | 「配信がブロックされました」と表示される | 高優先度ブロードキャストが残っている | 「優先度をリセット」ボタンを押す |
 | ディスプレイが「スタンバイ中」のまま | SSE 接続が切れている / スケジュールが未到達 | ディスプレイページを再読み込み、接続中台数を確認 |
