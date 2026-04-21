@@ -832,11 +832,11 @@ export default function SchedulesPage() {
                 <thead className="bg-gray-50 border-b border-gray-200">
                   <tr>
                     <th className="px-6 py-5 text-left text-sm font-semibold text-gray-600 uppercase tracking-wide whitespace-nowrap">状態</th>
+                    <th className="px-6 py-5 text-left text-sm font-semibold text-gray-600 uppercase tracking-wide whitespace-nowrap">優先度</th>
                     <th className="px-6 py-5 text-left text-sm font-semibold text-gray-600 uppercase tracking-wide whitespace-nowrap">グループ</th>
                     <th className="px-6 py-5 text-left text-sm font-semibold text-gray-600 uppercase tracking-wide whitespace-nowrap">次回起動</th>
                     <th className="px-6 py-5 text-left text-sm font-semibold text-gray-600 uppercase tracking-wide whitespace-nowrap">終了時刻</th>
                     <th className="px-6 py-5 text-left text-sm font-semibold text-gray-600 uppercase tracking-wide whitespace-nowrap">繰り返し</th>
-                    <th className="px-6 py-5 text-left text-sm font-semibold text-gray-600 uppercase tracking-wide whitespace-nowrap">優先度</th>
                     <th className="px-6 py-5 bg-gray-50 sticky right-0" style={{ boxShadow: "-1px 0 0 #e5e7eb" }} />
                   </tr>
                 </thead>
@@ -853,6 +853,11 @@ export default function SchedulesPage() {
                             s.active ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"
                           }`}>
                             {s.active ? "有効" : "無効"}
+                          </span>
+                        </td>
+                        <td className="px-6 py-5 whitespace-nowrap">
+                          <span className={`inline-block px-3 py-1.5 rounded-full text-sm font-semibold ${badge.cls}`}>
+                            {badge.label}
                           </span>
                         </td>
                         <td className="px-6 py-5" style={{ minWidth: 160, maxWidth: 200 }}>
@@ -875,11 +880,6 @@ export default function SchedulesPage() {
                         </td>
                         <td className="px-6 py-5 text-sm text-gray-600 whitespace-nowrap">
                           {repeatLabels[s.repeat] ?? s.repeat}
-                        </td>
-                        <td className="px-6 py-5 whitespace-nowrap">
-                          <span className={`inline-block px-3 py-1.5 rounded-full text-sm font-semibold ${badge.cls}`}>
-                            {badge.label}
-                          </span>
                         </td>
                         <td className="px-6 py-5 bg-white sticky right-0" style={{ boxShadow: "-1px 0 0 #e5e7eb" }}>
                           <div className="flex gap-2 justify-end">
